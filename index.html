@@ -82,6 +82,8 @@ body.locked main,body.locked #userBox,body.locked #installBtn,body.locked .title
 #userBox button{padding:6px 10px;font-size:12px}
 #syncDot{width:10px;height:10px;border-radius:50%;background:#888;display:inline-block}
 .plan{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--g2);border-left:4px solid var(--g2);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.plan.off{opacity:.55}.tagr{font-size:11px;background:#e2e2e2;border-radius:10px;padding:1px 8px;margin-left:4px}.tagr.ad{background:#ff6a00;color:#fff}.tagr.dis{background:#c00;color:#fff}
+#staffOv .box{max-width:620px;max-height:92vh;display:flex;flex-direction:column}#staffList{overflow:auto;max-height:45vh}
 .plan.cur{border-left-color:var(--org);background:#fff7f0}
 .pinfo{cursor:pointer;flex:1;min-width:0}.pact{display:flex;gap:4px;flex-shrink:0}
 .curbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#0d0d0d;color:#fff;border-radius:8px;padding:8px 12px;margin-bottom:12px}
@@ -96,6 +98,7 @@ textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px sol
   <div><div class="logo">Fit<b>X</b></div><div class="tag">Sports Equipment Services</div></div>
   <div id="userBox" style="display:none"><span id="syncDot"></span><span class="uname">👤 <span id="userName"></span></span>
     <button class="bg" onclick="$('plansCard').scrollIntoView({behavior:'smooth'})">Plans</button>
+    <button class="bo" id="staffBtn" style="display:none" onclick="openStaff()">👥 Staff</button>
         <button class="bg" onclick="logout()">Log out</button></div>
   <button id="installBtn" class="bo" style="display:none" onclick="installApp()">⬇ Install</button>
   <div class="title" style="margin-left:12px">Gym Layout Planner<br><span style="color:var(--org);font-size:12px">3 layouts · PDF · 3D view</span></div>
@@ -222,6 +225,20 @@ textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px sol
     <button class="bo" id="liBtn" type="submit">Log in</button>
     <div style="display:flex;justify-content:space-between"><button type="button" class="link" onclick="forgotPass()">Forgot password?</button><button type="button" class="link" id="setupLink" onclick="showSetup()">⚙ Firebase settings</button></div>
   </div></form></div>
+<div class="ovl" id="staffOv"><div class="box">
+  <div class="bh" style="display:flex;align-items:center"><div><div class="logo">Fit<b>X</b></div><div style="margin-top:6px;font-weight:600">Staff Logins (Admin)</div></div><button class="bg" style="margin-left:auto" onclick="ov('staffOv',false)">Close</button></div>
+  <div class="bb2">
+    <form class="row" onsubmit="addStaff(event)" autocomplete="off">
+      <label style="flex:1 1 140px">Name<input id="stName" placeholder="e.g. Ali"></label>
+      <label style="flex:1 1 180px">Email<input id="stEmail" type="email" placeholder="ali@fitx.qa" autocomplete="off"></label>
+      <label style="flex:1 1 130px">Password<input id="stPass" type="text" placeholder="min 6 characters" autocomplete="new-password"></label>
+      <label style="flex:0 1 100px">Role<select id="stRole"><option value="staff">Staff</option><option value="admin">Admin</option></select></label>
+      <button class="bo" id="stBtn" type="submit">+ Add staff</button>
+    </form>
+    <div class="err" id="stErr"></div>
+    <div id="staffList"></div>
+    <p class="note">Disable = staff can't open the app (data stays). Reset pw = sends a password-reset email to that staff member.</p>
+  </div></div></div>
 <div class="ovl" id="setupOv"><div class="box">
   <div class="bh"><div class="logo">Fit<b>X</b></div><div style="margin-top:8px;font-weight:600">Connect your Firebase database</div></div>
   <div class="bb2">
@@ -233,7 +250,7 @@ textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px sol
 <div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg" alt="plan"><p>Long-press the picture to save or share it · tap to close</p></div>
 
 <script src="capacitor.js" onerror="this.remove()"></script>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 <script>
 const BASE_TYPES={ // L, W, cat, rear safety cm, H
  "Treadmill":[210,90,"c",200,150],"Elliptical / Cross Trainer":[210,75,"c",60,170],"Upright Bike":[115,60,"c",0,140],
@@ -639,6 +656,6 @@ document.addEventListener("input",save);
  renderCustom();generate();
 })();
 </script>
-<script src="cloud.js?v=4"></script>
+<script src="cloud.js?v=5"></script>
 </body>
 </html>

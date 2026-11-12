@@ -7,3 +7,6 @@ window.FITX_FIREBASE = {
   messagingSenderId: "844821827119",
   appId: "1:844821827119:web:fc7d05c6a6b6f4520380da"
 };
+
+/* Admin login(s) – can add / disable staff inside the app */
+window.FITX_ADMINS = ["fitxqa@gmail.com"];

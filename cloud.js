@@ -52,8 +52,8 @@ async function cloudInit() {
   } catch (e) { console.error(e); showSetup(); $("cfgErr").textContent = "Firebase could not start: " + e.message; return; }
   AUTH.onAuthStateChanged(u => {
     ME = u;
-    if (u) { ov("loginOv", false); lock(false); onLogin(u); }
-    else { stopSync(); $("userBox").style.display = "none"; showLogin(); }
+    if (u) onLogin(u);
+    else { stopSync(); ROLE = ""; $("userBox").style.display = "none"; showLogin(); }
   });
 }
 async function doLogin(ev) {
@@ -88,11 +88,88 @@ function logout() {
   DIRTY = false; CUR_ID = null; Promise.resolve(AUTH.signOut()).then(() => location.reload());
 }
 
+/* ---------- access check: admin or active staff ---------- */
+let ROLE = "", unsubStaff = null, STAFF = [];
+const ADMINS = (window.FITX_ADMINS || []).map(e => e.toLowerCase());
 async function onLogin(u) {
-  MYNAME = u.displayName || u.email.split("@")[0];
-  $("userName").textContent = MYNAME; $("userBox").style.display = "";
-  DB.collection("users").doc(u.uid).set({ email: u.email, name: MYNAME, lastLogin: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(console.warn);
+  const ts = firebase.firestore.FieldValue.serverTimestamp(), ref = DB.collection("users").doc(u.uid);
+  const email = (u.email || "").toLowerCase();
+  let doc = null;
+  try { doc = await ref.get(); } catch (e) { doc = null; }
+  const d = doc && doc.exists ? doc.data() : null;
+  if (ADMINS.includes(email)) {
+    ROLE = "admin";
+    ref.set({ email, name: (d && d.name) || "Admin", role: "admin", active: true, lastLogin: ts }, { merge: true }).catch(console.warn);
+    MYNAME = (d && d.name) || "Admin";
+  } else if (d && d.active === true) {
+    ROLE = d.role == "admin" ? "admin" : "staff";
+    MYNAME = d.name || email.split("@")[0];
+    ref.update({ lastLogin: ts }).catch(console.warn);
+  } else {
+    await AUTH.signOut();
+    showLogin(d ? "Your account is disabled. Please contact the FitX admin." : "This login has no access. Please contact the FitX admin.");
+    return;
+  }
+  ov("loginOv", false); lock(false);
+  $("userName").textContent = MYNAME + (ROLE == "admin" && MYNAME != "Admin" ? " (Admin)" : "");
+  $("userBox").style.display = "";
+  $("staffBtn").style.display = ROLE == "admin" ? "" : "none";
   startSync();
+}
+
+/* ---------- staff management (admin only) ---------- */
+function openStaff() { if (ROLE != "admin") return; $("stErr").textContent = ""; ov("staffOv", true); listenStaff(); }
+function listenStaff() {
+  if (unsubStaff) return;
+  unsubStaff = DB.collection("users").onSnapshot(s => {
+    STAFF = s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) })).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    renderStaff();
+  }, e => $("stErr").textContent = niceErr(e));
+}
+function renderStaff() {
+  $("staffList").innerHTML = STAFF.map(m => {
+    const me = ME && m.id == ME.uid, mainAdmin = ADMINS.includes((m.email || "").toLowerCase());
+    return `<div class="plan${m.active ? "" : " off"}"><div class="pinfo"><b>${esc(m.name || "-")}</b> <span class="tagr ${m.role == "admin" ? "ad" : ""}">${m.role == "admin" ? "Admin" : "Staff"}</span>${m.active ? "" : ' <span class="tagr dis">Disabled</span>'}
+      <div class="note">${esc(m.email || "")}</div><div class="note">Last login: ${m.lastLogin ? fmtDate(m.lastLogin) : "never"}</div></div>
+      <div class="pact">${me || mainAdmin ? '<span class="note">main admin</span>' : `
+        <button class="bg bs" onclick="staffActive('${m.id}',${!m.active})">${m.active ? "Disable" : "Enable"}</button>
+        <button class="bg bs" onclick="staffRole('${m.id}','${m.role == "admin" ? "staff" : "admin"}')">${m.role == "admin" ? "Make staff" : "Make admin"}</button>
+        <button class="bg bs" onclick="staffReset('${esc(m.email || "")}')">Reset pw</button>
+        <button class="bx" title="Remove access" onclick="staffRemove('${m.id}')">🗑</button>`}</div></div>`;
+  }).join("") || '<p class="note">No staff yet.</p>';
+}
+async function addStaff(ev) {
+  ev && ev.preventDefault();
+  const name = $("stName").value.trim(), email = $("stEmail").value.trim().toLowerCase(), pw = $("stPass").value, role = $("stRole").value;
+  $("stErr").style.color = ""; $("stErr").textContent = "";
+  if (!name || !email || !pw) { $("stErr").textContent = "Enter name, email and password"; return; }
+  if (pw.length < 6) { $("stErr").textContent = "Password must be at least 6 characters"; return; }
+  $("stBtn").disabled = true;
+  let sec;
+  try {
+    sec = firebase.apps.find(a => a.name == "staffCreator") || firebase.initializeApp(fbConfig(), "staffCreator");
+    const sa = sec.auth();
+    await sa.setPersistence(firebase.auth.Auth.Persistence.NONE);
+    const cred = await sa.createUserWithEmailAndPassword(email, pw);
+    const uid = cred.user.uid;
+    await sa.signOut();
+    await DB.collection("users").doc(uid).set({ name, email, role, active: true, createdBy: MYNAME, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    $("stName").value = $("stEmail").value = $("stPass").value = "";
+    $("stErr").style.color = "#2a8a2a"; $("stErr").textContent = `${name} added. Give them: ${email} + the password you typed.`;
+  } catch (e) {
+    const c = (e && e.code) || "";
+    $("stErr").textContent = /email-already-in-use/.test(c) ? "This email already has a login. If it was removed, press Enable on it in the list, or use a different email."
+      : /operation-not-allowed|admin-restricted/.test(c) ? "Creating logins is switched off in Firebase (User actions → Enable create)."
+      : /weak-password/.test(c) ? "Password too weak – use at least 6 characters" : niceErr(e);
+  } finally { $("stBtn").disabled = false; }
+}
+function staffActive(id, on) { DB.collection("users").doc(id).update({ active: on }).then(() => toast(on ? "Staff enabled" : "Staff disabled – they can no longer open the app")).catch(e => toast(niceErr(e))); }
+function staffRole(id, role) { DB.collection("users").doc(id).update({ role }).then(() => toast(role == "admin" ? "Now an admin" : "Now staff")).catch(e => toast(niceErr(e))); }
+function staffReset(email) { AUTH.sendPasswordResetEmail(email).then(() => toast("Password reset email sent to " + email)).catch(e => toast(niceErr(e))); }
+function staffRemove(id) {
+  const m = STAFF.find(x => x.id == id); if (!m) return;
+  if (!confirm(`Remove ${m.name || m.email}? They will lose access to the app.`)) return;
+  DB.collection("users").doc(id).update({ active: false, removed: true }).then(() => toast("Access removed")).catch(e => toast(niceErr(e)));
 }
 
 /* ---------- live sync ---------- */
@@ -116,7 +193,7 @@ function startSync() {
     CAT_FROM_CLOUD = true;
   }, console.warn);
 }
-function stopSync() { unsubPlans && unsubPlans(); unsubCat && unsubCat(); unsubPlans = unsubCat = null; PLANS = []; renderPlans(); }
+function stopSync() { unsubPlans && unsubPlans(); unsubCat && unsubCat(); unsubStaff && unsubStaff(); unsubPlans = unsubCat = unsubStaff = null; PLANS = []; renderPlans(); }
 function saveCatalog() {
   if (!DB || !ME) return;
   DB.collection("settings").doc("catalog").set({ types: CT, brands: CB, updatedBy: MYNAME, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(e => toast("Could not save list: " + niceErr(e)));
