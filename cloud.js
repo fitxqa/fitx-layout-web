@@ -58,11 +58,11 @@ async function cloudInit() {
 }
 async function doLogin(ev) {
   ev && ev.preventDefault();
-  const e = $("liEmail").value.trim(), p = $("liPass").value;
+  const e = $("liEmail").value.trim().toLowerCase(), p = $("liPass").value;
   if (!e || !p) { $("loginErr").textContent = "Enter email and password"; return; }
   $("liBtn").disabled = true; $("loginErr").textContent = "";
   try { await AUTH.signInWithEmailAndPassword(e, p); }
-  catch (er) { $("loginErr").textContent = niceErr(er); }
+  catch (er) { $("loginErr").innerHTML = esc(niceErr(er)) + (/wrong|invalid/.test(er.code || "") ? "<br><small style='color:#666'>Tap 👁 to check the password. Capital letters matter.</small>" : "") + `<br><small style="color:#999">${esc(er.code || "")}</small>`; }
   finally { $("liBtn").disabled = false; }
 }
 async function forgotPass() {
