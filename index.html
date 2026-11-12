@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="FitX Layout">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--blk:#0d0d0d;--org:#ff6a00;--org2:#ff8a33;--g1:#f4f4f4;--g2:#e2e2e2}
 *{box-sizing:border-box}
@@ -180,117 +180,13 @@ tbody tr:hover{background:#fffaf6}
 @media(max-width:600px){main{padding:14px 10px 30px}.card{padding:14px;border-radius:12px}.curbar{top:58px}header{padding:10px 12px}}
 
 
-/* ===== iOS-style layer ===== */
-:root{--tint:#ff6a00;--tint2:#ff8533;--bg:#f2f2f7;--card:#fff;--label:#000;--label2:rgba(60,60,67,.6);--sep:rgba(60,60,67,.18);--fill:rgba(118,118,128,.12);--fill2:rgba(118,118,128,.2);
-  --spring:cubic-bezier(.32,.72,0,1);--rad:14px}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--label);letter-spacing:-.01em}
-.logo{font-family:Barlow,-apple-system,sans-serif}
-header{background:rgba(249,249,251,.78);color:var(--label);box-shadow:0 .5px 0 var(--sep);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);padding:10px 18px}
-header::after{display:none}
-header .logo{font-size:24px;color:#000}header .tag{color:var(--label2);font-size:9px}
-header .title{display:none}
-#userBox{color:var(--label)}
-header .bg,.curbar .bg{background:var(--fill);color:var(--tint);border:0}
-header .bg:hover,.curbar .bg:hover{background:var(--fill2)}
-.bigtitle{padding:6px 4px 14px}
-.bigtitle h1{margin:0;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
-.bigtitle p{margin:4px 0 0;color:var(--label2);font-size:15px}
-main{max-width:1100px;padding:18px 16px 40px}
-.card{background:var(--card);border-radius:var(--rad);border:0;box-shadow:none;padding:16px 18px;margin-bottom:26px}
-.card:hover{box-shadow:none}
-h2{font-size:13px;font-weight:500;letter-spacing:.02em;color:var(--label2);text-transform:uppercase;margin:-2px 0 12px}
-h2::before{display:none}
-h4{color:var(--label2);font-weight:500;letter-spacing:.02em}
-label{font-size:13px;font-weight:500;color:var(--label2);letter-spacing:0}
-input,select,textarea.notes{font-size:16px;font-family:inherit;border:0;border-radius:10px;background:var(--fill);padding:10px 12px;color:var(--label)}
-input:hover,select:hover{border:0}
-input:focus,select:focus,textarea:focus{background:#fff;box-shadow:0 0 0 2px var(--tint)}
-td input,td select{font-size:15px;padding:8px 10px}
-button{font-family:inherit;font-weight:600;font-size:15px;border-radius:12px;padding:10px 16px;letter-spacing:-.01em;transition:transform .35s var(--spring),opacity .2s,background .2s}
-button:active:not(:disabled){transform:scale(.97);opacity:.7}
-.bo{background:var(--tint);box-shadow:none}
-.bo:hover{background:var(--tint2);box-shadow:none;transform:none}
-.bb{background:#1c1c1e;box-shadow:none}.bb:hover{transform:none;box-shadow:none;background:#2c2c2e}
-.bg{background:var(--fill);color:var(--tint)}.bg:hover{background:var(--fill2)}
-.bs{font-size:14px;padding:7px 13px;border-radius:10px}
-.bx{color:#ff3b30}.bx:hover{background:rgba(255,59,48,.1)}
-.rip{display:none}
-.link{color:var(--tint);font-weight:500}
-table{font-size:14px}
-th{background:transparent;color:var(--label2);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.02em;border-bottom:.5px solid var(--sep);padding:8px 6px}
-th:first-child,th:last-child{border-radius:0}
-td{border-bottom:.5px solid var(--sep)}
-tbody tr:hover{background:transparent}
-.curbar{top:58px;background:rgba(255,255,255,.78);color:var(--label);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
-  box-shadow:0 0 0 .5px var(--sep),0 8px 24px rgba(0,0,0,.06);border-radius:16px}
-.curbar b{color:var(--tint)}
-#dirty{color:#ff9500}
-.lay{border-radius:var(--rad);box-shadow:none;border:2px solid transparent;background:#fff}
-.lay:hover{transform:none;box-shadow:none}
-.lay.sel{border-color:var(--tint);box-shadow:none}
-.lay h3{background:#fff;color:var(--label);font-size:17px;font-weight:600;border-bottom:.5px solid var(--sep);padding:12px 14px}
-.lay h3 span{color:var(--tint);font-weight:500;font-size:14px}
-.layouts{gap:16px}
-.plan{border:0;border-radius:0;border-bottom:.5px solid var(--sep);margin:0;padding:12px 4px;background:transparent}
-.plan:last-child{border-bottom:0}
-.plan:hover{transform:none;box-shadow:none;background:rgba(0,0,0,.025)}
-.plan.cur{background:rgba(255,106,0,.07);border-radius:10px}
-.plan b{font-weight:600;font-size:16px}
-.chip{background:var(--fill);color:var(--label);font-weight:500}.chip b{color:var(--tint)}.chip button{color:var(--label2)}
-.num{background:var(--tint);border-radius:7px}
-.tagr{background:var(--fill)}.tagr.ad{background:var(--tint)}.tagr.dis{background:#ff3b30}
-#syncDot{box-shadow:none}
-.toast{top:12px;bottom:auto;background:rgba(30,30,32,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:22px;padding:11px 20px;font-size:14px;font-weight:500;animation:island .5s var(--spring);box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.toast::before{background:var(--tint)}
-@keyframes island{from{opacity:0;transform:translate(-50%,-24px) scale(.85)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
-/* sheets */
-.ovl{background:rgba(0,0,0,.32);backdrop-filter:none;-webkit-backdrop-filter:none;animation:fade .3s ease}
-.ovl .box{border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:sheetIn .5s var(--spring);background:#fff}
-.ovl .bh{background:#fff;color:var(--label);border-bottom:.5px solid var(--sep);padding:18px 20px}
-.ovl .bh::after{display:none}
-.ovl .bh .logo{color:#000}
-.ovl .bb2{padding:18px 20px}
-.ovl textarea{background:var(--fill);border:0;border-radius:10px}
-@keyframes sheetIn{from{opacity:0;transform:translateY(40px) scale(.98)}to{opacity:1;transform:none}}
-#loginOv{background:var(--bg)}
-#loginOv .box{box-shadow:none;background:transparent;max-width:400px}
-#loginOv .bh{background:transparent;border:0;text-align:center;padding:10px 20px 18px}
-#loginOv .bh .logo{font-size:48px}
-#loginOv .bh .tag{color:var(--label2)}
-#loginOv .bh div:last-child{font-size:22px;font-weight:700;margin-top:14px!important;letter-spacing:-.02em}
-#loginOv .bb2{background:#fff;border-radius:16px;padding:20px}
-#liBtn{border-radius:12px;font-size:17px;padding:14px}
-/* tab bar */
-#tabbar{display:none}
-@media(max-width:760px){
-  #tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:14;background:rgba(249,249,251,.86);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
-    box-shadow:0 -.5px 0 var(--sep);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-  #tabbar button{flex:1;background:none;color:#8e8e93;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:10px;font-weight:500;border-radius:8px}
-  #tabbar button svg{width:24px;height:24px;fill:currentColor}
-  #tabbar button.on{color:var(--tint)}
-  body.locked #tabbar{display:none}
-  body{padding-bottom:76px}
-  .bigtitle h1{font-size:30px}
-  header #userBox button:not(:last-child){display:none!important}
-  header #userBox button:last-child{padding:6px 12px;font-size:14px}
-  .curbar{top:52px;border-radius:14px}
-  .curbar>span:first-child{flex:1 1 100%}
-  .ovl{align-items:flex-end;padding:0}
-  .ovl .box{border-radius:14px 14px 0 0;max-width:100%;max-height:92vh;overflow:auto;padding-bottom:env(safe-area-inset-bottom);animation:sheetUp .55s var(--spring)}
-  .ovl .box::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:rgba(60,60,67,.3);margin:8px auto 0}
-  #loginOv{align-items:center;padding:16px}
-  #loginOv .box{border-radius:0;animation:sheetIn .5s var(--spring)}#loginOv .box::before{display:none}
-}
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
-
-
 /* PDF preview */
 #pdfOv .pvbox{max-width:1180px;width:100%;height:92vh;display:flex;flex-direction:column;background:#e9e9ee}
-.pvbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--sep)}
+.pvbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid #e2e2e6}
 .pvt{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column}.pvt b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pvPages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;align-items:center;gap:14px;-webkit-overflow-scrolling:touch}
 .pvpage{width:100%;max-width:1100px;height:auto;background:#fff;border-radius:6px;box-shadow:0 4px 18px rgba(0,0,0,.15)}
-.pvload{padding:60px;color:var(--label2)}
+.pvload{padding:60px;color:#777}
 #printArea{display:none}
 @media(max-width:760px){#pdfOv .pvbox{height:94vh}}
 @media print{
@@ -315,7 +211,6 @@ tbody tr:hover{background:transparent}
   <div class="title" style="margin-left:12px">Gym Layout Planner<br><span style="color:var(--org);font-size:12px">3 layouts · PDF · 3D view</span></div>
 </header>
 <main>
-<div class="bigtitle"><h1>Gym Layout Planner</h1><p>3 automatic layouts · PDF · 3D view</p></div>
 
 <div class="curbar"><span id="curPlan">New plan</span><span id="dirty" style="display:none">● unsaved changes</span>
   <span style="margin-left:auto;display:flex;gap:6px"><button class="bo bs" onclick="savePlan(this)">💾 Save Plan</button><button class="bg bs" onclick="newPlan()">+ New Plan</button><button class="bg bs" onclick="openImport()">📥 Import</button></span></div>
@@ -430,13 +325,6 @@ tbody tr:hover{background:transparent}
   <div id="planList"></div>
 </div>
 </main>
-<nav id="tabbar">
-  <button data-go="top" class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg><span>Plan</span></button>
-  <button data-go="secEq"><svg viewBox="0 0 24 24"><path d="M3 10h3v4H3zM18 10h3v4h-3zM6 8h2v8H6zM16 8h2v8h-2zM8 11h8v2H8z"/></svg><span>Equipment</span></button>
-  <button data-go="secLay"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg><span>Layouts</span></button>
-  <button data-go="plansCard"><svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 0 1 1 1v17l-8-4-8 4V4a1 1 0 0 1 1-1z"/></svg><span>Saved</span></button>
-  <button data-go="staff" id="tabStaff" style="display:none"><svg viewBox="0 0 24 24"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM1 21c0-4 4-7 8-7s8 3 8 7zm16 0c0-2-1-4-2.5-5.5C20 15 23 17 23 21z"/></svg><span>Staff</span></button>
-</nav>
 <div class="toast" id="toast"></div>
 <div class="ovl" id="loginOv"><form class="box" onsubmit="doLogin(event)">
   <div class="bh"><div class="logo">Fit<b>X</b></div><div class="tag">Sports Equipment Services</div><div style="margin-top:8px;font-weight:600">Gym Layout Planner</div></div>
@@ -485,7 +373,7 @@ tbody tr:hover{background:transparent}
 <div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg" alt="plan"><p>Long-press the picture to save or share it · tap to close</p></div>
 
 <script src="capacitor.js" onerror="this.remove()"></script>
-<script src="config.js?v=10"></script>
+<script src="config.js?v=11"></script>
 <script>
 const BASE_TYPES={ // L, W, cat, rear safety cm, H
  "Treadmill":[210,90,"c",200,150],"Elliptical / Cross Trainer":[210,75,"c",60,170],"Upright Bike":[115,60,"c",0,140],
@@ -898,12 +786,6 @@ document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");i
 (function(){if(!("IntersectionObserver" in window))return;const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.06});
  document.querySelectorAll("main>.card").forEach(c=>{c.classList.add("reveal");io.observe(c)})})();
 
-/* ---- iOS tab bar ---- */
-document.querySelectorAll("#tabbar button").forEach(b=>b.addEventListener("click",()=>{
- const g=b.dataset.go;if(g=="staff"){openStaff();return}
- document.querySelectorAll("#tabbar button").forEach(x=>x.classList.toggle("on",x==b));
- if(g=="top")window.scrollTo({top:0,behavior:"smooth"});else{const el=$(g);if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-120,behavior:"smooth"})}
-}));
 /* ---- install app ---- */
 let DEFER=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEFER=e;$("installBtn").style.display=""});
@@ -932,6 +814,6 @@ document.addEventListener("input",save);
  renderCustom();generate();
 })();
 </script>
-<script src="cloud.js?v=10"></script>
+<script src="cloud.js?v=11"></script>
 </body>
 </html>

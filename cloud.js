@@ -114,7 +114,6 @@ async function onLogin(u) {
   $("userName").textContent = MYNAME + (ROLE == "admin" && MYNAME != "Admin" ? " (Admin)" : "");
   $("userBox").style.display = "";
   $("staffBtn").style.display = ROLE == "admin" ? "" : "none";
-  const ts2 = $("tabStaff"); if (ts2) ts2.style.display = ROLE == "admin" ? "" : "none";
   startSync();
 }
 
