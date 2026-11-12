@@ -180,6 +180,14 @@ tbody tr:hover{background:#fffaf6}
 @media(max-width:600px){main{padding:14px 10px 30px}.card{padding:14px;border-radius:12px}.curbar{top:58px}header{padding:10px 12px}}
 
 
+/* my equipment list + descriptions */
+.mylist{display:flex;flex-direction:column;gap:8px}
+.myit{display:flex;gap:10px;align-items:center;border:1px solid #ececf0;border-radius:12px;padding:10px 12px;background:#fafafb}
+.myit .mi{flex:1;min-width:0}.myit b{font-size:14px}.myit .ds{font-size:12px;color:#666;margin-top:2px}
+.myit .tg{font-size:11px;border-radius:10px;padding:1px 8px;margin-left:6px;background:#1a1a1a;color:#fff}.myit .tg.c{background:#ff6a00}
+.myit .ac{display:flex;gap:4px}
+.edesc{font-size:11.5px;color:#777;line-height:1.35;margin-top:3px;max-width:340px}
+.ldesc{display:block;font-size:11.5px;color:#777;font-weight:400}
 /* PDF preview */
 #pdfOv .pvbox{max-width:1180px;width:100%;height:92vh;display:flex;flex-direction:column;background:#e9e9ee}
 .pvbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid #e2e2e6}
@@ -332,31 +340,14 @@ tbody tr:hover{background:#fffaf6}
 
 <div class="card">
   <h2>My Equipment Types & Brands</h2>
-  <div class="grid2">
-    <div>
-      <h4>Add new equipment type</h4>
-      <div class="row">
-        <label class="full" style="flex:2 1 160px">Name<input id="ntName" placeholder="e.g. Hip Thrust Machine"></label>
-        <label style="flex:1 1 90px">Category<select id="ntCat"><option value="s">Strength</option><option value="c">Cardio</option></select></label>
-      </div>
-      <div class="row" style="margin-top:6px">
-        <label style="flex:1 1 70px">Length cm<input id="ntL" type="number" value="150"></label>
-        <label style="flex:1 1 70px">Width cm<input id="ntW" type="number" value="100"></label>
-        <label style="flex:1 1 70px">Height cm<input id="ntH" type="number" value="150"></label>
-        <label style="flex:1 1 90px">Rear safety cm<input id="ntR" type="number" value="0"></label>
-        <button class="bo" onclick="addType()">+ Add type</button>
-      </div>
-      <div class="chips" id="typeChips"></div>
-    </div>
-    <div>
-      <h4>Add new brand</h4>
-      <div class="row">
-        <label class="full" style="flex:1 1 160px">Brand name<input id="nbName" placeholder="e.g. Panatta"></label>
-        <button class="bo" onclick="addBrand()">+ Add brand</button>
-      </div>
-      <div class="chips" id="brandChips"></div>
-    </div>
+  <div class="row" style="margin-bottom:12px">
+    <button class="bo" onclick="openType()">+ New equipment type</button>
+    <button class="bg" onclick="openBrand()">+ New brand</button>
   </div>
+  <h4>My equipment types</h4>
+  <div id="typeList" class="mylist"></div>
+  <h4 style="margin-top:14px">My brands</h4>
+  <div id="brandList" class="chips"></div>
   <p class="note">New types and brands are saved in the cloud and shared with all your staff.</p>
 </div>
 
@@ -416,6 +407,32 @@ tbody tr:hover{background:#fffaf6}
     <button class="bo" id="liBtn" type="submit">Log in</button>
     <div style="display:flex;justify-content:space-between"><button type="button" class="link" onclick="forgotPass()">Forgot password?</button><button type="button" class="link" id="setupLink" onclick="showSetup()">⚙ Firebase settings</button></div>
   </div></form></div>
+<div class="ovl" id="typeOv"><div class="box">
+  <div class="bh" style="display:flex;align-items:center"><div><div class="logo">Fit<b>X</b></div><div style="margin-top:6px;font-weight:600" id="tyTitle">New equipment type</div></div><button class="bg" style="margin-left:auto" onclick="ov('typeOv',false)">Close</button></div>
+  <div class="bb2">
+    <div class="row">
+      <label class="full" style="flex:2 1 200px">Equipment name<input id="tyName" placeholder="e.g. Hip Thrust Machine" oninput="tyAutoDesc()"></label>
+      <label style="flex:1 1 110px">Category<select id="tyCat" onchange="tyAutoDesc()"><option value="s">Strength</option><option value="c">Cardio</option></select></label>
+    </div>
+    <div class="row">
+      <label style="flex:1 1 70px">Length cm<input id="tyL" type="number" value="150"></label>
+      <label style="flex:1 1 70px">Width cm<input id="tyW" type="number" value="100"></label>
+      <label style="flex:1 1 70px">Height cm<input id="tyH" type="number" value="150"></label>
+      <label style="flex:1 1 90px">Rear safety cm<input id="tyR" type="number" value="0"></label>
+    </div>
+    <label>Description / usage <span class="note" style="font-weight:400">– written automatically from the name, you can change it</span>
+      <textarea id="tyDesc" class="notes" rows="3" oninput="this.dataset.manual=1" placeholder="What the machine is used for"></textarea></label>
+    <div><button class="bg bs" type="button" onclick="$('tyDesc').dataset.manual='';tyAutoDesc(true)">✨ Write description again</button></div>
+    <div class="err" id="tyErr"></div>
+    <div style="display:flex;gap:8px"><button class="bo" style="flex:1" onclick="saveTypeForm()">Save</button><button class="bg" id="tyDel" style="color:#c00" onclick="deleteType(TY_EDIT)">Delete</button></div>
+  </div></div></div>
+<div class="ovl" id="brandOv"><div class="box" style="max-width:380px">
+  <div class="bh"><div class="logo">Fit<b>X</b></div><div style="margin-top:6px;font-weight:600" id="brTitle">New brand</div></div>
+  <div class="bb2">
+    <label>Brand name<input id="brName" placeholder="e.g. Panatta"></label>
+    <div class="err" id="brErr"></div>
+    <div style="display:flex;gap:8px"><button class="bo" style="flex:1" onclick="saveBrandForm()">Save</button><button class="bg" id="brDel" style="color:#c00" onclick="deleteBrand(BR_EDIT)">Delete</button><button class="bg" onclick="ov('brandOv',false)">Close</button></div>
+  </div></div></div>
 <div class="ovl" id="pdfOv"><div class="box pvbox">
   <div class="pvbar"><button class="bg bs" onclick="closePreview()">Close</button><div class="pvt"><b id="pvTitle">PDF</b><span class="note" id="pvCount"></span></div>
     <button class="bg bs" onclick="pvPrint()">🖨 Print</button><button class="bo bs" onclick="pvShare()">Share</button></div>
@@ -454,7 +471,7 @@ tbody tr:hover{background:#fffaf6}
 <div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg" alt="plan"><p>Long-press the picture to save or share it · tap to close</p></div>
 
 <script src="capacitor.js" onerror="this.remove()"></script>
-<script src="config.js?v=12"></script>
+<script src="config.js?v=13"></script>
 <script>
 const BASE_TYPES={ // L, W, cat, rear safety cm, H
  "Treadmill":[210,90,"c",200,150],"Elliptical / Cross Trainer":[210,75,"c",60,170],"Upright Bike":[115,60,"c",0,140],
@@ -476,21 +493,139 @@ function brands(){return [...BASE_BRANDS.filter(b=>b!="Other"),...CB,"Other"]}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function opt(list,v){return list.map(x=>`<option${x==v?" selected":""}>${esc(x)}</option>`).join("")}
 
-/* ---- custom types / brands ---- */
+/* ---- equipment descriptions (usage / function) ---- */
+const DESC={
+ "Treadmill":"Walking, jogging and running at adjustable speed and incline – cardio endurance and fat burning.",
+ "Elliptical / Cross Trainer":"Low-impact full-body cardio; arms and legs move together, easy on knees and hips.",
+ "Upright Bike":"Seated cycling for cardio and leg endurance – compact and low impact.",
+ "Recumbent Bike":"Back-supported reclined cycling – comfortable low-impact cardio, ideal for seniors and rehab.",
+ "Spin Bike":"Indoor cycling with a heavy flywheel for high-intensity cardio and spin classes.",
+ "Rower":"Full-body cardio rowing – legs, back, core and arms in one stroke.",
+ "Stair Climber":"Continuous step climbing – high-intensity cardio for legs and glutes.",
+ "Cross Ramp / Arc Trainer":"Adjustable-ramp stride trainer – low-impact cardio targeting legs and glutes.",
+ "Air Bike":"Fan-resistance bike with moving arms – full-body HIIT cardio.",
+ "Cable Crossover":"Dual adjustable pulleys for chest flys, cable rows, triceps, biceps and functional moves.",
+ "Functional Trainer":"Compact dual-pulley station for functional, sports and strength exercises.",
+ "Selectorized Machine":"Pin-loaded weight-stack machine for guided, safe single-muscle strength training.",
+ "Chest Press":"Seated pressing machine for chest, shoulders and triceps.",
+ "Lat Pulldown":"Overhead pulling for lats, upper back and biceps.",
+ "Leg Press":"Pushes a weighted sled with the legs – quads, glutes and hamstrings.",
+ "Leg Extension / Curl":"Isolates quadriceps (extension) and hamstrings (curl).",
+ "Plate-Loaded Machine":"Weight-plate loaded machine for heavy strength work on a natural movement path.",
+ "Smith Machine":"Barbell on guided rails for safer squats, bench press, lunges and shoulder press.",
+ "Power Rack":"Steel cage with safety bars for heavy barbell squats, bench press and pull-ups.",
+ "Squat Rack":"Barbell stands for squats, presses and lunges.",
+ "Multi-Gym":"All-in-one station for press, pulldown, row and leg exercises.",
+ "Dumbbell Rack (2-tier)":"Storage rack holding dumbbell sets for free-weight training.",
+ "Kettlebell Rack":"Storage for kettlebells – swings, cleans and functional training.",
+ "Plate Tree":"Stores Olympic weight plates next to racks and benches.",
+ "Adjustable Bench":"Flat / incline / decline bench for dumbbell presses, rows and core work.",
+ "Flat Bench":"Flat bench for dumbbell presses, rows and step-ups.",
+ "Olympic Bench Press":"Bench with barbell uprights for heavy chest pressing.",
+ "Preacher Curl Bench":"Angled arm pad that isolates the biceps for curls.",
+ "Other":""};
+const DKEYS=[
+ [/hip ?thrust|glute bridge|glute drive/i,"Targets the glutes and hamstrings with a hip-thrust / bridge movement."],
+ [/glute|kickback/i,"Strengthens and shapes the glutes."],
+ [/abduct/i,"Outer-thigh machine – works the hip abductors and glutes."],
+ [/adduct/i,"Inner-thigh machine – works the hip adductors."],
+ [/hack ?squat|v.?squat|pendulum/i,"Machine squat for quads and glutes with back support."],
+ [/squat/i,"Squat movement for legs and glutes."],
+ [/lunge/i,"Lunge movement for quads, glutes and balance."],
+ [/calf/i,"Isolates the calf muscles."],
+ [/leg ?press/i,"Pushes a weighted sled with the legs – quads, glutes and hamstrings."],
+ [/leg ?ext/i,"Isolates the quadriceps."],
+ [/leg ?curl|hamstring|glute.?ham/i,"Isolates the hamstrings."],
+ [/shoulder ?press|overhead ?press|military/i,"Pressing overhead for shoulders and triceps."],
+ [/lateral ?raise|delt/i,"Isolates the shoulder (deltoid) muscles."],
+ [/pec|fly|butterfly/i,"Chest fly movement – isolates the chest."],
+ [/chest|bench ?press|incline ?press|decline ?press/i,"Pressing movement for chest, shoulders and triceps."],
+ [/pull.?down|lat\b|lats/i,"Overhead pulling for lats, upper back and biceps."],
+ [/row/i,"Rowing / pulling movement for the back and biceps."],
+ [/pull.?up|chin|dip|assist/i,"Bodyweight pull-ups and dips for back, chest and arms."],
+ [/tricep/i,"Isolates the triceps."],
+ [/bicep|curl|preacher/i,"Isolates the biceps."],
+ [/back ?ext|hyper/i,"Strengthens the lower back, glutes and hamstrings."],
+ [/ab\b|abs|crunch|core|oblique|torso|rotary/i,"Works the abdominals and core."],
+ [/treadmill|run|curve/i,"Walking and running for cardio endurance and fat burning."],
+ [/elliptic|cross ?trainer/i,"Low-impact full-body cardio."],
+ [/spin|indoor ?cycl/i,"Indoor cycling for high-intensity cardio."],
+ [/bike|cycle/i,"Cycling for cardio and leg endurance."],
+ [/row(er|ing)/i,"Full-body cardio rowing."],
+ [/ski/i,"Ski-pull cardio for arms, core and back."],
+ [/stair|step|climb/i,"Step climbing cardio for legs and glutes."],
+ [/sled|prowler/i,"Push / pull sled for power and conditioning."],
+ [/rope|battle/i,"Battle ropes for conditioning and upper-body endurance."],
+ [/boxing|bag|punch/i,"Boxing and striking for cardio and power."],
+ [/plyo|box jump/i,"Jumping platform for explosive leg power."],
+ [/kettlebell/i,"Kettlebells for swings, cleans and functional strength."],
+ [/dumbbell/i,"Dumbbells for free-weight strength training."],
+ [/barbell|olympic bar|plate/i,"Barbells and plates for free-weight strength training."],
+ [/rack|cage/i,"Rack for safe barbell training and storage."],
+ [/bench/i,"Bench for presses, rows and core exercises."],
+ [/mat|stretch|yoga|pilates/i,"Floor area for stretching, mobility and core work."],
+ [/cable|pulley|crossover|functional/i,"Cable pulleys for functional and strength exercises."],
+ [/smith/i,"Guided barbell for safer squats and presses."],
+ [/massage|recovery|vibration/i,"Recovery and muscle relaxation."],
+ [/inbody|scale|body ?comp/i,"Body composition and weight measurement."],
+ [/water|cooler|dispenser/i,"Drinking water station for members."],
+ [/locker|bench seat/i,"Storage / seating for members."]];
+function autoDesc(name,cat){
+ const n=String(name||"");if(!n.trim())return"";
+ for(const [re,t] of DKEYS)if(re.test(n))return t;
+ return cat=="c"?"Cardio machine for endurance and calorie burn.":"Strength training equipment.";
+}
+function descOf(type){const t=TYPES[type]||[];return (CT[type]&&CT[type][5])||DESC[type]||autoDesc(type,t[2])}
+
+/* ---- my equipment types & brands (quick add / edit / delete) ---- */
+const NEW_T="➕ New equipment type…";
+let TY_EDIT=null,BR_EDIT=null,TY_ROW=null;
+function typeOpts(v){return opt(Object.keys(TYPES),v)+`<option value="__new">${NEW_T}</option>`}
 function renderCustom(){
- $("typeChips").innerHTML=Object.keys(CT).map(k=>`<span class="chip">${esc(k)} <b>${CT[k][0]}×${CT[k][1]}</b><button onclick="delType('${esc(k).replace(/'/g,"\\'")}')">×</button></span>`).join("")||'<span class="note">No custom types yet</span>';
- $("brandChips").innerHTML=CB.map((b,i)=>`<span class="chip">${esc(b)}<button onclick="delBrand(${i})">×</button></span>`).join("")||'<span class="note">No custom brands yet</span>';
+ const tl=$("typeList");
+ if(tl)tl.innerHTML=Object.keys(CT).map(k=>{const t=CT[k];return `<div class="myit"><div class="mi"><b>${esc(k)}</b><span class="tg ${t[2]=="c"?"c":""}">${t[2]=="c"?"Cardio":"Strength"}</span>
+   <div class="note">${t[0]} × ${t[1]} × ${t[4]||"-"} cm${t[3]?` · +${t[3]} cm rear`:""}</div><div class="ds">${esc(descOf(k))}</div></div>
+   <div class="ac"><button class="bg bs" onclick="openType('${esc(k).replace(/'/g,"\\'")}')">✏️ Edit</button><button class="bx" title="Delete" onclick="deleteType('${esc(k).replace(/'/g,"\\'")}')">🗑</button></div></div>`}).join("")||'<span class="note">No equipment types added yet. Tap “+ New equipment type”.</span>';
+ const bl=$("brandList");
+ if(bl)bl.innerHTML=CB.map((b,i)=>`<span class="chip" onclick="openBrand(${i})" style="cursor:pointer">${esc(b)} ✏️<button onclick="event.stopPropagation();deleteBrand(${i})">×</button></span>`).join("")||'<span class="note">No brands added yet.</span>';
  $("brandlist").innerHTML=brands().map(b=>`<option value="${esc(b)}">`).join("");
- document.querySelectorAll("#eq .et").forEach(s=>{const v=s.value;s.innerHTML=opt(Object.keys(TYPES),v)});
+ document.querySelectorAll("#eq tr").forEach(tr=>{const s=tr.querySelector(".et"),v=s.value;s.innerHTML=typeOpts(TYPES[v]?v:"Other");showDesc(tr)});
 }
-function addType(){
- const n=$("ntName").value.trim();if(!n){toast("Enter equipment name");return}
- CT[n]=[+$("ntL").value||100,+$("ntW").value||60,$("ntCat").value,+$("ntR").value||0,+$("ntH").value||120];
- ls("fitxCustomTypes",CT);rebuildTypes();renderCustom();$("ntName").value="";toast("Added: "+n);
+function tyAutoDesc(force){const d=$("tyDesc");if(force||!d.dataset.manual)d.value=autoDesc($("tyName").value,$("tyCat").value)}
+function openType(name,row){
+ TY_EDIT=name&&CT[name]?name:null;TY_ROW=row||null;
+ const t=TY_EDIT?CT[TY_EDIT]:[150,100,"s",0,150,""];
+ $("tyTitle").textContent=TY_EDIT?"Edit equipment type":"New equipment type";
+ $("tyName").value=TY_EDIT||"";$("tyCat").value=t[2];$("tyL").value=t[0];$("tyW").value=t[1];$("tyH").value=t[4]||120;$("tyR").value=t[3]||0;
+ $("tyDesc").value=TY_EDIT?descOf(TY_EDIT):"";$("tyDesc").dataset.manual=TY_EDIT&&t[5]?"1":"";
+ $("tyDel").style.display=TY_EDIT?"":"none";$("tyErr").textContent="";
+ ov("typeOv",true);setTimeout(()=>$("tyName").focus(),60);
 }
-function delType(k){delete CT[k];ls("fitxCustomTypes",CT);rebuildTypes();renderCustom()}
-function addBrand(){const n=$("nbName").value.trim();if(!n)return;if(!brands().includes(n))CB.push(n);ls("fitxCustomBrands",CB);renderCustom();$("nbName").value="";toast("Added: "+n)}
-function delBrand(i){CB.splice(i,1);ls("fitxCustomBrands",CB);renderCustom()}
+function saveTypeForm(){
+ const n=$("tyName").value.trim();if(!n){$("tyErr").textContent="Enter the equipment name";return}
+ if(BASE_TYPES[n]&&n!=TY_EDIT){$("tyErr").textContent="This is already a built-in type – choose it from the list";return}
+ if(CT[n]&&n!=TY_EDIT){$("tyErr").textContent="You already have a type with this name";return}
+ const cat=$("tyCat").value,desc=$("tyDesc").value.trim()||autoDesc(n,cat);
+ const val=[+$("tyL").value||100,+$("tyW").value||60,cat,+$("tyR").value||0,+$("tyH").value||120,desc];
+ if(TY_EDIT&&TY_EDIT!=n){delete CT[TY_EDIT];document.querySelectorAll("#eq .et").forEach(s=>{if(s.value==TY_EDIT){s.innerHTML=opt([n],n)}})}
+ CT[n]=val;ls("fitxCustomTypes",CT);rebuildTypes();
+ if(TY_ROW){const s=TY_ROW.querySelector(".et");s.innerHTML=typeOpts(n);s.value=n;fillRow(TY_ROW)}
+ renderCustom();save();ov("typeOv",false);toast((TY_EDIT?"Updated: ":"Added: ")+n);
+}
+function deleteType(k){
+ if(!k||!CT[k])return;
+ const used=[...document.querySelectorAll("#eq .et")].some(s=>s.value==k);
+ if(!confirm(`Delete “${k}”?`+(used?"\nIt is used in this plan – those rows will change to “Other”.":"")))return;
+ delete CT[k];ls("fitxCustomTypes",CT);rebuildTypes();renderCustom();save();ov("typeOv",false);toast("Deleted: "+k);
+}
+function openBrand(i){BR_EDIT=i==null?null:i;$("brTitle").textContent=BR_EDIT==null?"New brand":"Edit brand";$("brName").value=BR_EDIT==null?"":CB[BR_EDIT];$("brDel").style.display=BR_EDIT==null?"none":"";$("brErr").textContent="";ov("brandOv",true);setTimeout(()=>$("brName").focus(),60)}
+function saveBrandForm(){
+ const n=$("brName").value.trim();if(!n){$("brErr").textContent="Enter the brand name";return}
+ if(brands().includes(n)&&(BR_EDIT==null||CB[BR_EDIT]!=n)){$("brErr").textContent="This brand is already in the list";return}
+ if(BR_EDIT==null)CB.push(n);else{const old=CB[BR_EDIT];CB[BR_EDIT]=n;document.querySelectorAll("#eq .eb").forEach(i=>{if(i.value==old)i.value=n})}
+ ls("fitxCustomBrands",CB);renderCustom();save();ov("brandOv",false);toast("Saved brand: "+n);
+}
+function deleteBrand(i){if(i==null||!CB[i])return;if(!confirm(`Delete brand “${CB[i]}”?`))return;const n=CB.splice(i,1)[0];ls("fitxCustomBrands",CB);renderCustom();ov("brandOv",false);toast("Deleted: "+n)}
 
 /* ---- rows ---- */
 function addDoor(d={wall:"Opposite wall (bottom)",off:1,w:1}){
@@ -502,10 +637,13 @@ function addEq(e){
  if(!e){const t=TYPES.Treadmill;e={type:"Treadmill",brand:"Life Fitness",model:"",l:t[0],w:t[1],h:t[4],q:1}}
  const T=TYPES[e.type]||TYPES.Other;if(e.h==null)e.h=T[4];
  const tr=document.createElement("tr");
- tr.innerHTML=`<td><select class="et">${opt(Object.keys(TYPES),e.type)}</select></td><td><input class="eb" list="brandlist" value="${esc(e.brand)}"></td><td><input class="em" value="${esc(e.model)}" placeholder="optional"></td><td><input class="el" type="number" value="${e.l}" style="width:68px"></td><td><input class="ew" type="number" value="${e.w}" style="width:68px"></td><td><input class="eh" type="number" value="${e.h}" style="width:68px"></td><td><input class="eq" type="number" min="1" value="${e.q}" style="width:52px"></td><td><button class="bx" onclick="this.closest('tr').remove();save()">×</button></td>`;
- tr.querySelector(".et").onchange=ev=>{const t=TYPES[ev.target.value];tr.querySelector(".el").value=t[0];tr.querySelector(".ew").value=t[1];tr.querySelector(".eh").value=t[4];save()};
- $("eq").appendChild(tr);
+ tr.innerHTML=`<td><select class="et">${typeOpts(TYPES[e.type]?e.type:"Other")}</select><div class="edesc"></div></td><td><input class="eb" list="brandlist" value="${esc(e.brand)}"></td><td><input class="em" value="${esc(e.model)}" placeholder="optional"></td><td><input class="el" type="number" value="${e.l}" style="width:68px"></td><td><input class="ew" type="number" value="${e.w}" style="width:68px"></td><td><input class="eh" type="number" value="${e.h}" style="width:68px"></td><td><input class="eq" type="number" min="1" value="${e.q}" style="width:52px"></td><td><button class="bx" onclick="this.closest('tr').remove();save()">×</button></td>`;
+ const sel=tr.querySelector(".et");sel.dataset.prev=sel.value;
+ sel.onchange=()=>{if(sel.value=="__new"){sel.value=sel.dataset.prev;openType(null,tr);return}sel.dataset.prev=sel.value;fillRow(tr);save()};
+ $("eq").appendChild(tr);showDesc(tr);
 }
+function fillRow(tr){const s=tr.querySelector(".et"),t=TYPES[s.value]||TYPES.Other;s.dataset.prev=s.value;tr.querySelector(".el").value=t[0];tr.querySelector(".ew").value=t[1];tr.querySelector(".eh").value=t[4];showDesc(tr)}
+function showDesc(tr){const d=tr.querySelector(".edesc");if(d)d.textContent=descOf(tr.querySelector(".et").value)}
 document.body.insertAdjacentHTML("beforeend",`<datalist id="brandlist"></datalist>`);
 
 function read(){
@@ -638,7 +776,7 @@ function pick(i,noScroll){
  $("bigcard").style.display="";
  $("bigtitle").textContent=`${NAMES[i][0]} — ${NAMES[i][1]}${P.client?" · "+P.client:""}`;
  $("big").innerHTML=draw(P,L,true);
- $("biglist").innerHTML=listOf(L).map(u=>`<tr><td><span class="num">${u.n}</span></td><td>${esc(u.type)}</td><td>${esc(u.brand)}</td><td>${esc(u.model)}</td><td>${u.l} × ${u.w} × ${u.h}${u.rear?` <span class="note">(+${Math.round(u.rear*100)} cm rear safety)</span>`:""}</td><td>${L.miss.includes(u)?'<span class="warn">Not fitted</span>':(u.cat=="c"?"Cardio":"Strength")}</td></tr>`).join("");
+ $("biglist").innerHTML=listOf(L).map(u=>`<tr><td><span class="num">${u.n}</span></td><td>${esc(u.type)}<span class="ldesc">${esc(descOf(u.type))}</span></td><td>${esc(u.brand)}</td><td>${esc(u.model)}</td><td>${u.l} × ${u.w} × ${u.h}${u.rear?` <span class="note">(+${Math.round(u.rear*100)} cm rear safety)</span>`:""}</td><td>${L.miss.includes(u)?'<span class="warn">Not fitted</span>':(u.cat=="c"?"Cardio":"Strength")}</td></tr>`).join("");
  if($("card3d").style.display!="none"&&R3)show3D(true);
  if(!noScroll)$("bigcard").scrollIntoView({behavior:"smooth"});
 }
@@ -681,12 +819,15 @@ function pdfTable(doc,L,y){
  head();doc.setFont("helvetica","normal");
  listOf(L).forEach((u,i)=>{
   if(y>195){pdfFooter(doc);doc.addPage();y=15;head();doc.setFont("helvetica","normal")}
-  if(i%2){doc.setFillColor(245,245,245);doc.rect(10,y,277,6.5,"F")}
+  const ds=descOf(u.type),dl=ds?doc.splitTextToSize(ds,165):[],rh=6.5+dl.length*3.4;
+  if(y+rh>200){pdfFooter(doc);doc.addPage();y=15;head();doc.setFont("helvetica","normal")}
+  if(i%2){doc.setFillColor(245,245,245);doc.rect(10,y,277,rh,"F")}
   doc.setTextColor(255,106,0);doc.setFont("helvetica","bold");doc.text(String(u.n),12,y+4.6);doc.setFont("helvetica","normal");doc.setTextColor(20,20,20);
   const miss=L.miss.includes(u);
   [u.type,u.brand,u.model||"-",`${u.l} × ${u.w} × ${u.h}${u.rear?`  (+${Math.round(u.rear*100)} rear)`:""}`].forEach((t,k)=>doc.text(String(t).slice(0,40),cols[k+1][0]+2,y+4.6));
   if(miss)doc.setTextColor(200,0,0);doc.text(miss?"NOT FITTED":(u.cat=="c"?"Cardio":"Strength"),cols[5][0]+2,y+4.6);
-  y+=6.5;
+  if(dl.length){doc.setFontSize(7.5);doc.setTextColor(110,110,110);doc.text(dl,22,y+8.2);doc.setFontSize(9)}
+  y+=rh;
  });
  return y;
 }
@@ -895,6 +1036,6 @@ document.addEventListener("input",save);
  renderCustom();generate();
 })();
 </script>
-<script src="cloud.js?v=12"></script>
+<script src="cloud.js?v=13"></script>
 </body>
 </html>

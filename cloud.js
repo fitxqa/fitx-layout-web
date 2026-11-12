@@ -199,7 +199,7 @@ function saveCatalog() {
   DB.collection("settings").doc("catalog").set({ types: CT, brands: CB, updatedBy: MYNAME, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(e => toast("Could not save list: " + niceErr(e)));
 }
 // share custom types/brands with the team
-["addType", "delType", "addBrand", "delBrand"].forEach(fn => {
+["saveTypeForm", "deleteType", "saveBrandForm", "deleteBrand"].forEach(fn => {
   const orig = window[fn];
   window[fn] = function () { orig.apply(this, arguments); saveCatalog(); };
 });
@@ -303,7 +303,7 @@ function doImport() {
   if (DIRTY && !confirm("You have unsaved changes. Replace them with the imported plan?")) return;
   // custom equipment types & brands – merge, keep existing
   let added = 0;
-  if (d.types && typeof d.types == "object") for (const k in d.types) if (!CT[k] && !BASE_TYPES[k]) { const t = d.types[k]; if (t.length < 5) t[4] = 120; CT[k] = t; added++; }
+  if (d.types && typeof d.types == "object") for (const k in d.types) if (!CT[k] && !BASE_TYPES[k]) { const t = d.types[k]; if (t.length < 5) t[4] = 120; if (!t[5]) t[5] = autoDesc(k, t[2]); CT[k] = t; added++; }
   if (Array.isArray(d.brands)) d.brands.forEach(b => { if (b && !brands().includes(b)) { CB.push(b); added++; } });
   if (added) { ls("fitxCustomTypes", CT); ls("fitxCustomBrands", CB); rebuildTypes(); renderCustom(); saveCatalog(); }
   // older pages had no height – fill from the type
