@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitX Gym Layout Planner</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="FitX Layout">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blk:#0d0d0d;--org:#ff6a00;--org2:#ff8a33;--g1:#f4f4f4;--g2:#e2e2e2}
+*{box-sizing:border-box}
+body{margin:0;font-family:Barlow,system-ui,sans-serif;background:var(--g1);color:var(--blk)}
+header{background:var(--blk);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--org)}
+.logo{font-weight:800;font-size:30px;letter-spacing:-1px;line-height:1}.logo b{color:var(--org)}
+.tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#ccc}
+.title{margin-left:auto;font-weight:600;font-size:15px;text-align:right}
+main{max-width:1300px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+h2{margin:0 0 10px;font-size:16px;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:6px;height:18px;background:var(--org);border-radius:2px}
+h4{margin:6px 0;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#444}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+label{font-size:12px;font-weight:600;color:#444;display:flex;flex-direction:column;gap:3px}
+input,select{font-family:inherit;font-size:14px;padding:7px 8px;border:1px solid #ccc;border-radius:6px;background:#fff;min-width:0}
+input:focus,select:focus{outline:2px solid var(--org);border-color:var(--org)}
+button{font-family:inherit;font-weight:700;font-size:14px;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+.bo{background:var(--org);color:#fff}.bo:hover{background:var(--org2)}
+.bb{background:var(--blk);color:#fff}.bg{background:var(--g2);color:var(--blk)}
+.bs{font-size:12px;padding:6px 10px}
+.bx{background:transparent;color:#c00;font-size:18px;padding:2px 8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--blk);color:#fff;text-align:left;padding:6px;font-weight:600}
+td{padding:4px 6px;border-bottom:1px solid var(--g2)}
+td input,td select{width:100%;padding:5px}
+.tbl{overflow-x:auto}
+.layouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}
+.lay{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);border:2px solid transparent}
+.lay.sel{border-color:var(--org)}
+.lay h3{margin:0;background:var(--blk);color:#fff;font-size:15px;padding:8px 12px;display:flex;justify-content:space-between}
+.lay h3 span{color:var(--org)}
+.lay .sub{font-size:12px;color:#555;padding:6px 12px 0}
+.lay svg{display:block;width:100%;height:auto;cursor:pointer}
+.stats{font-size:12px;padding:4px 12px 6px;color:#333}
+.acts{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 12px}
+.warn{color:#c00;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin-top:6px}
+.legend i{display:inline-block;width:14px;height:10px;margin-right:4px;vertical-align:middle;border:1px solid #333}
+.note{font-size:12px;color:#666}
+.num{display:inline-block;min-width:22px;text-align:center;background:var(--org);color:#fff;border-radius:4px;font-weight:700}
+#big svg{width:100%;height:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{background:var(--blk);color:#fff;border-radius:14px;padding:3px 4px 3px 10px;font-size:12px;display:flex;align-items:center;gap:4px}
+.chip b{color:var(--org);font-weight:600}
+.chip button{background:transparent;color:#fff;padding:0 6px;font-size:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+#v3d{width:100%;height:520px;background:#1a1a1a;border-radius:8px;overflow:hidden;position:relative;touch-action:none}
+#v3d .ld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--blk);color:#fff;padding:10px 18px;border-radius:6px;border-left:4px solid var(--org);display:none;z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:15;padding:16px;flex-direction:column;gap:10px}
+.modal img{max-width:100%;max-height:80vh;background:#fff;border-radius:6px}
+.modal p{color:#fff;margin:0;text-align:center}
+.ovl{position:fixed;inset:0;background:rgba(13,13,13,.94);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
+.ovl .box{background:#fff;border-radius:12px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ovl .bh{background:#0d0d0d;color:#fff;padding:18px;border-bottom:4px solid var(--org)}
+.ovl .bb2{padding:18px;display:flex;flex-direction:column;gap:10px}
+.ovl input{font-size:16px;padding:10px}
+.ovl textarea{font-family:monospace;font-size:12px;width:100%;height:190px;border:1px solid #ccc;border-radius:6px;padding:8px}
+.err{color:#c00;font-size:13px;min-height:16px}
+.link{background:none;color:var(--org);padding:4px 0;font-weight:600;font-size:13px;text-align:left}
+#userBox{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;margin-left:auto}
+#userBox button{padding:6px 10px;font-size:12px}
+#syncDot{width:10px;height:10px;border-radius:50%;background:#888;display:inline-block}
+.plan{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--g2);border-left:4px solid var(--g2);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.plan.cur{border-left-color:var(--org);background:#fff7f0}
+.pinfo{cursor:pointer;flex:1;min-width:0}.pact{display:flex;gap:4px;flex-shrink:0}
+.curbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#0d0d0d;color:#fff;border-radius:8px;padding:8px 12px;margin-bottom:12px}
+.curbar b{color:var(--org)}
+#dirty{color:#ffb400;font-size:12px;font-weight:600}
+textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px solid #ccc;border-radius:6px;width:100%;min-height:40px}
+@media(max-width:600px){.title{display:none}#userBox .uname{display:none}.plan{flex-direction:column;align-items:stretch}.pact{justify-content:flex-end}.layouts{grid-template-columns:1fr}#v3d{height:400px}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">Fit<b>X</b></div><div class="tag">Sports Equipment Services</div></div>
+  <div id="userBox" style="display:none"><span id="syncDot"></span><span class="uname">👤 <span id="userName"></span></span>
+    <button class="bg" onclick="$('plansCard').scrollIntoView({behavior:'smooth'})">Plans</button>
+    <button class="bg" title="Firebase settings" onclick="showSetup()">⚙</button>
+    <button class="bg" onclick="logout()">Log out</button></div>
+  <button id="installBtn" class="bo" style="display:none" onclick="installApp()">⬇ Install</button>
+  <div class="title" style="margin-left:12px">Gym Layout Planner<br><span style="color:var(--org);font-size:12px">3 layouts · PDF · 3D view</span></div>
+</header>
+<main>
+
+<div class="curbar"><span id="curPlan">New plan</span><span id="dirty" style="display:none">● unsaved changes</span>
+  <span style="margin-left:auto;display:flex;gap:6px"><button class="bo bs" onclick="savePlan(this)">💾 Save Plan</button><button class="bg bs" onclick="newPlan()">+ New Plan</button></span></div>
+
+<div class="card">
+  <h2>Project & Room</h2>
+  <div class="row" style="margin-bottom:10px">
+    <label style="flex:1 1 160px">Location / Area<input id="loc" placeholder="e.g. The Pearl, Doha"></label>
+    <label style="flex:1 1 130px">Client phone<input id="phone" type="tel" placeholder="e.g. 5555 1234"></label>
+    <label style="flex:2 1 220px">Notes<textarea id="notes" class="notes" rows="1" placeholder="optional"></textarea></label>
+  </div>
+  <div class="row">
+    <label style="flex:2 1 200px">Client / Site name<input id="client" placeholder="e.g. Tower 5 Residents Gym"></label>
+    <label style="flex:1 1 140px">Mirror wall length (m)<input id="rw" type="number" step="0.1" min="2" value="12"></label>
+    <label style="flex:1 1 140px">Room depth (m)<input id="rd" type="number" step="0.1" min="2" value="9"></label>
+    <label style="flex:1 1 120px">Ceiling height (m)<input id="rh" type="number" step="0.1" min="2" value="3"></label>
+    <label style="flex:1 1 140px">Gap between machines (m)<input id="gap" type="number" step="0.1" min="0.3" value="0.6"></label>
+  </div>
+  <p class="note">Sketches always show the <b>mirror wall at the top</b>. Doors are placed relative to it.</p>
+</div>
+
+<div class="card">
+  <h2>Doors</h2>
+  <div class="tbl"><table><thead><tr><th>Wall</th><th>Distance from corner (m)</th><th>Door width (m)</th><th></th></tr></thead><tbody id="doors"></tbody></table></div>
+  <div style="margin-top:8px"><button class="bg" onclick="addDoor();save()">+ Add door</button></div>
+  <p class="note">Distance is measured on the sketch: from the <b>left</b> corner for top/bottom walls, from the <b>top</b> corner for left/right walls. A 1.2 m clear zone is kept in front of every door.</p>
+</div>
+
+<div class="card">
+  <h2>Equipment List</h2>
+  <div class="tbl"><table><thead><tr><th style="min-width:150px">Equipment</th><th style="min-width:120px">Brand</th><th style="min-width:100px">Model</th><th>Length (cm)</th><th>Width (cm)</th><th>Height (cm)</th><th>Qty</th><th></th></tr></thead><tbody id="eq"></tbody></table></div>
+  <div class="row" style="margin-top:8px">
+    <button class="bg" onclick="addEq();save()">+ Add equipment</button>
+    <button class="bo" onclick="generate()">Generate 3 Layouts</button>
+  </div>
+  <p class="note">Sizes fill in automatically from the equipment type — change them to the exact model size if you have it.</p>
+</div>
+
+<div class="card">
+  <h2>My Equipment Types & Brands</h2>
+  <div class="grid2">
+    <div>
+      <h4>Add new equipment type</h4>
+      <div class="row">
+        <label style="flex:2 1 160px">Name<input id="ntName" placeholder="e.g. Hip Thrust Machine"></label>
+        <label style="flex:1 1 90px">Category<select id="ntCat"><option value="s">Strength</option><option value="c">Cardio</option></select></label>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <label style="flex:1 1 70px">Length cm<input id="ntL" type="number" value="150"></label>
+        <label style="flex:1 1 70px">Width cm<input id="ntW" type="number" value="100"></label>
+        <label style="flex:1 1 70px">Height cm<input id="ntH" type="number" value="150"></label>
+        <label style="flex:1 1 90px">Rear safety cm<input id="ntR" type="number" value="0"></label>
+        <button class="bo" onclick="addType()">+ Add type</button>
+      </div>
+      <div class="chips" id="typeChips"></div>
+    </div>
+    <div>
+      <h4>Add new brand</h4>
+      <div class="row">
+        <label style="flex:1 1 160px">Brand name<input id="nbName" placeholder="e.g. Panatta"></label>
+        <button class="bo" onclick="addBrand()">+ Add brand</button>
+      </div>
+      <div class="chips" id="brandChips"></div>
+    </div>
+  </div>
+  <p class="note">New types and brands are saved in the cloud and shared with all your staff.</p>
+</div>
+
+<div class="card">
+  <h2>Layout Sketches</h2>
+  <div class="legend">
+    <span><i style="background:#ff6a00"></i>Cardio</span>
+    <span><i style="background:#1a1a1a"></i>Strength</span>
+    <span><i style="background:repeating-linear-gradient(45deg,#ffd9bf,#ffd9bf 2px,#fff 2px,#fff 5px)"></i>Safety zone (treadmill rear 2 m)</span>
+    <span><i style="background:repeating-linear-gradient(45deg,#ccc,#ccc 2px,#fff 2px,#fff 5px)"></i>Door clear zone</span>
+    <span><i style="background:#9ec9e8"></i>Mirror</span>
+  </div>
+  <div class="layouts" id="layouts" style="margin-top:12px"></div>
+  <div class="row" style="margin-top:12px"><button class="bb" onclick="pdfAll(this)">Share PDF – all 3 plans</button></div>
+</div>
+
+<div class="card" id="bigcard" style="display:none">
+  <h2 id="bigtitle">Selected Layout</h2>
+  <div class="row" style="margin-bottom:10px">
+    <button class="bo" onclick="pdfOne(SEL,this)">Share PDF</button>
+    <button class="bb" onclick="show3D()">View in 3D</button>
+    <button class="bg" onclick="copyList()">Copy list</button>
+  </div>
+  <div id="big"></div>
+  <div class="tbl" style="margin-top:10px"><table><thead><tr><th>#</th><th>Equipment</th><th>Brand</th><th>Model</th><th>Size L × W × H (cm)</th><th>Zone</th></tr></thead><tbody id="biglist"></tbody></table></div>
+</div>
+
+<div class="card" id="card3d" style="display:none">
+  <h2 id="title3d">3D Plan</h2>
+  <div class="row" style="margin-bottom:10px">
+    <button class="bg bs" onclick="cam('iso')">3D view</button>
+    <button class="bg bs" onclick="cam('top')">Top view</button>
+    <button class="bg bs" onclick="cam('mirror')">From entrance</button>
+    <button class="bo bs" onclick="pdfOne(SEL,this)">Share PDF (with 3D)</button>
+  </div>
+  <div id="v3d"><div class="ld">Loading 3D…</div></div>
+  <p class="note">Drag to rotate · pinch / scroll to zoom · two fingers to move.</p>
+</div>
+
+<div class="card" id="plansCard">
+  <h2>Saved Plans <span class="note" id="planCount" style="text-transform:none;letter-spacing:0"></span></h2>
+  <div class="row" style="margin-bottom:10px"><label style="flex:1 1 220px">Search<input id="planSearch" placeholder="client, area, phone, staff…" oninput="renderPlans()"></label>
+  <button class="bg" onclick="newPlan()">+ New Plan</button></div>
+  <div id="planList"></div>
+</div>
+</main>
+<div class="toast" id="toast"></div>
+<div class="ovl" id="loginOv"><form class="box" onsubmit="doLogin(event)">
+  <div class="bh"><div class="logo">Fit<b>X</b></div><div class="tag">Sports Equipment Services</div><div style="margin-top:8px;font-weight:600">Gym Layout Planner – Staff Login</div></div>
+  <div class="bb2">
+    <label>Email<input id="liEmail" type="email" autocomplete="username"></label>
+    <label>Password<input id="liPass" type="password" autocomplete="current-password"></label>
+    <div class="err" id="loginErr"></div>
+    <button class="bo" id="liBtn" type="submit">Log in</button>
+    <div style="display:flex;justify-content:space-between"><button type="button" class="link" onclick="forgotPass()">Forgot password?</button><button type="button" class="link" onclick="showSetup()">⚙ Firebase settings</button></div>
+  </div></form></div>
+<div class="ovl" id="setupOv"><div class="box">
+  <div class="bh"><div class="logo">Fit<b>X</b></div><div style="margin-top:8px;font-weight:600">Connect your Firebase database</div></div>
+  <div class="bb2">
+    <div class="note">Firebase console → Project settings → Your apps → Web app → <b>SDK setup and configuration → Config</b>. Copy the whole <code>firebaseConfig = { … }</code> and paste it here.</div>
+    <textarea id="cfgText" placeholder='const firebaseConfig = {&#10;  apiKey: "...",&#10;  authDomain: "...",&#10;  projectId: "...",&#10;  ...&#10;};'></textarea>
+    <div class="err" id="cfgErr"></div>
+    <div style="display:flex;gap:8px"><button class="bo" style="flex:1" onclick="saveSetup()">Save & Connect</button><button class="bg" onclick="ov('setupOv',false)">Close</button></div>
+  </div></div></div>
+<div class="modal" id="modal" onclick="this.style.display='none'"><img id="modalImg" alt="plan"><p>Long-press the picture to save or share it · tap to close</p></div>
+
+<script src="capacitor.js" onerror="this.remove()"></script>
+<script src="config.js"></script>
+<script>
+const BASE_TYPES={ // L, W, cat, rear safety cm, H
+ "Treadmill":[210,90,"c",200,150],"Elliptical / Cross Trainer":[210,75,"c",60,170],"Upright Bike":[115,60,"c",0,140],
+ "Recumbent Bike":[165,65,"c",0,125],"Spin Bike":[120,55,"c",0,120],"Rower":[245,60,"c",0,50],"Stair Climber":[150,80,"c",60,200],
+ "Cross Ramp / Arc Trainer":[180,80,"c",60,170],"Air Bike":[130,65,"c",0,130],
+ "Cable Crossover":[400,100,"s",0,230],"Functional Trainer":[150,110,"s",0,220],"Selectorized Machine":[150,120,"s",0,150],
+ "Chest Press":[150,130,"s",0,150],"Lat Pulldown":[180,120,"s",0,210],"Leg Press":[230,150,"s",0,150],"Leg Extension / Curl":[150,110,"s",0,130],
+ "Plate-Loaded Machine":[200,150,"s",0,150],"Smith Machine":[220,150,"s",0,230],"Power Rack":[150,150,"s",0,230],"Squat Rack":[140,130,"s",0,180],
+ "Multi-Gym":[200,180,"s",0,220],"Dumbbell Rack (2-tier)":[250,75,"s",0,90],"Kettlebell Rack":[120,50,"s",0,80],"Plate Tree":[60,60,"s",0,120],
+ "Adjustable Bench":[140,65,"s",0,50],"Flat Bench":[120,60,"s",0,45],"Olympic Bench Press":[200,160,"s",0,140],"Preacher Curl Bench":[110,80,"s",0,90],
+ "Other":[150,100,"s",0,120]};
+const BASE_BRANDS=["Life Fitness","Technogym","Matrix","Precor","Cybex","Star Trac","Hammer Strength","Nautilus","Johnson","Impulse","Spirit","Concept2","Keiser","Free Motion","Hoist","Body Masters","Legend","Promaxima","BH Fitness","Other"];
+const WALLS=["Mirror wall (top)","Opposite wall (bottom)","Left wall","Right wall"];
+const $=id=>document.getElementById(id);
+let CT={},CB=[],TYPES={},LAYOUTS=[],SEL=0,SHOT=null;
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function rebuildTypes(){TYPES={...BASE_TYPES,...CT}}
+function brands(){return [...BASE_BRANDS.filter(b=>b!="Other"),...CB,"Other"]}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function opt(list,v){return list.map(x=>`<option${x==v?" selected":""}>${esc(x)}</option>`).join("")}
+
+/* ---- custom types / brands ---- */
+function renderCustom(){
+ $("typeChips").innerHTML=Object.keys(CT).map(k=>`<span class="chip">${esc(k)} <b>${CT[k][0]}×${CT[k][1]}</b><button onclick="delType('${esc(k).replace(/'/g,"\\'")}')">×</button></span>`).join("")||'<span class="note">No custom types yet</span>';
+ $("brandChips").innerHTML=CB.map((b,i)=>`<span class="chip">${esc(b)}<button onclick="delBrand(${i})">×</button></span>`).join("")||'<span class="note">No custom brands yet</span>';
+ $("brandlist").innerHTML=brands().map(b=>`<option value="${esc(b)}">`).join("");
+ document.querySelectorAll("#eq .et").forEach(s=>{const v=s.value;s.innerHTML=opt(Object.keys(TYPES),v)});
+}
+function addType(){
+ const n=$("ntName").value.trim();if(!n){toast("Enter equipment name");return}
+ CT[n]=[+$("ntL").value||100,+$("ntW").value||60,$("ntCat").value,+$("ntR").value||0,+$("ntH").value||120];
+ ls("fitxCustomTypes",CT);rebuildTypes();renderCustom();$("ntName").value="";toast("Added: "+n);
+}
+function delType(k){delete CT[k];ls("fitxCustomTypes",CT);rebuildTypes();renderCustom()}
+function addBrand(){const n=$("nbName").value.trim();if(!n)return;if(!brands().includes(n))CB.push(n);ls("fitxCustomBrands",CB);renderCustom();$("nbName").value="";toast("Added: "+n)}
+function delBrand(i){CB.splice(i,1);ls("fitxCustomBrands",CB);renderCustom()}
+
+/* ---- rows ---- */
+function addDoor(d={wall:"Opposite wall (bottom)",off:1,w:1}){
+ const tr=document.createElement("tr");
+ tr.innerHTML=`<td><select class="dw">${opt(WALLS,d.wall)}</select></td><td><input class="do" type="number" step="0.1" value="${d.off}"></td><td><input class="dwd" type="number" step="0.1" value="${d.w}"></td><td><button class="bx" onclick="this.closest('tr').remove();save()">×</button></td>`;
+ $("doors").appendChild(tr);
+}
+function addEq(e){
+ if(!e){const t=TYPES.Treadmill;e={type:"Treadmill",brand:"Life Fitness",model:"",l:t[0],w:t[1],h:t[4],q:1}}
+ const T=TYPES[e.type]||TYPES.Other;if(e.h==null)e.h=T[4];
+ const tr=document.createElement("tr");
+ tr.innerHTML=`<td><select class="et">${opt(Object.keys(TYPES),e.type)}</select></td><td><input class="eb" list="brandlist" value="${esc(e.brand)}"></td><td><input class="em" value="${esc(e.model)}" placeholder="optional"></td><td><input class="el" type="number" value="${e.l}" style="width:68px"></td><td><input class="ew" type="number" value="${e.w}" style="width:68px"></td><td><input class="eh" type="number" value="${e.h}" style="width:68px"></td><td><input class="eq" type="number" min="1" value="${e.q}" style="width:52px"></td><td><button class="bx" onclick="this.closest('tr').remove();save()">×</button></td>`;
+ tr.querySelector(".et").onchange=ev=>{const t=TYPES[ev.target.value];tr.querySelector(".el").value=t[0];tr.querySelector(".ew").value=t[1];tr.querySelector(".eh").value=t[4];save()};
+ $("eq").appendChild(tr);
+}
+document.body.insertAdjacentHTML("beforeend",`<datalist id="brandlist"></datalist>`);
+
+function read(){
+ const doors=[...$("doors").children].map(r=>({wall:r.querySelector(".dw").value,off:+r.querySelector(".do").value||0,w:+r.querySelector(".dwd").value||0.9}));
+ const eq=[...$("eq").children].map(r=>({type:r.querySelector(".et").value,brand:r.querySelector(".eb").value,model:r.querySelector(".em").value,l:+r.querySelector(".el").value||100,w:+r.querySelector(".ew").value||60,h:+r.querySelector(".eh").value||100,q:Math.max(1,+r.querySelector(".eq").value||1)}));
+ return {client:$("client").value,W:+$("rw").value||10,D:+$("rd").value||8,H:+$("rh").value||3,gap:+$("gap").value||0.6,doors,eq};
+}
+function save(){const l=$("loc");ls("fitxLayout",{...read(),location:l?l.value:"",phone:l?$("phone").value:"",notes:l?$("notes").value:""})}
+
+/* ---- geometry ---- */
+function doorRects(P){
+ const z=1.2,R=[];
+ P.doors.forEach(d=>{
+  if(d.wall.startsWith("Mirror"))R.push({x:d.off,y:0,w:d.w,h:z,d});
+  else if(d.wall.startsWith("Opposite"))R.push({x:d.off,y:P.D-z,w:d.w,h:z,d});
+  else if(d.wall.startsWith("Left"))R.push({x:0,y:d.off,w:z,h:d.w,d});
+  else R.push({x:P.W-z,y:d.off,w:z,h:d.w,d});
+ });return R;
+}
+function hit(a,b,g){return a.x<b.x+b.w+g&&a.x+a.w+g>b.x&&a.y<b.y+b.h+g&&a.y+a.h+g>b.y}
+function units(P){let n=0,U=[];P.eq.forEach(e=>{const t=TYPES[e.type]||TYPES.Other;for(let i=0;i<e.q;i++)U.push({...e,n:++n,cat:t[2],rear:t[3]/100,L:e.l/100,Wd:e.w/100,Ht:e.h/100})});return U}
+function boxOf(u,o){const len=u.L+u.rear;return (o=="N"||o=="S")?{w:u.Wd,h:len}:{w:len,h:u.Wd}}
+function fits(r,P,placed,blocks,m){
+ if(r.x<m-1e-9||r.y<m-1e-9||r.x+r.w>P.W-m+1e-9||r.y+r.h>P.D-m+1e-9)return false;
+ for(const b of blocks)if(hit(r,b,0))return false;
+ for(const p of placed)if(hit(r,p.box,P.gap))return false;
+ return true;
+}
+function scan(u,P,placed,blocks,opts){
+ const st=0.1,m=0.15,o="N",b=boxOf(u,o),ys=[];
+ for(let y=m;y<=P.D-m-b.h+1e-9;y+=st)ys.push(+y.toFixed(2));
+ if(opts.fromBack)ys.reverse();
+ for(const y of ys)for(let x=m;x<=P.W-m-b.w+1e-9;x+=st){const r={x:+x.toFixed(2),y,w:b.w,h:b.h};if(fits(r,P,placed,blocks,m))return {u,o,box:r}}
+ return null;
+}
+function perim(u,P,placed,blocks){
+ const m=0.15,st=0.1,C=[],bN=boxOf(u,"N"),bW=boxOf(u,"W");
+ for(let x=m;x<=P.W-m-bN.w;x+=st)C.push({o:"N",r:{x,y:m,w:bN.w,h:bN.h}});
+ for(let y=m;y<=P.D-m-bW.h;y+=st)C.push({o:"W",r:{x:m,y,w:bW.w,h:bW.h}});
+ for(let y=m;y<=P.D-m-bW.h;y+=st)C.push({o:"E",r:{x:P.W-m-bW.w,y,w:bW.w,h:bW.h}});
+ for(let x=m;x<=P.W-m-bN.w;x+=st)C.push({o:"S",r:{x,y:P.D-m-bN.h,w:bN.w,h:bN.h}});
+ for(const c of C){c.r.x=+c.r.x.toFixed(2);c.r.y=+c.r.y.toFixed(2);if(fits(c.r,P,placed,blocks,m))return {u,o:c.o,box:c.r}}
+ return null;
+}
+function build(P,mode){
+ const U=units(P),blocks=doorRects(P),placed=[],miss=[];
+ const cardio=U.filter(u=>u.cat=="c"),str=U.filter(u=>u.cat=="s");
+ const bigFirst=a=>[...a].sort((p,q)=>(q.L*q.Wd)-(p.L*p.Wd));
+ const put=(u,f)=>{const r=f(u);r?placed.push(r):miss.push(u)};
+ if(mode==0){cardio.forEach(u=>put(u,u=>scan(u,P,placed,blocks,{})));bigFirst(str).forEach(u=>put(u,u=>scan(u,P,placed,blocks,{})))}
+ else if(mode==1){
+  const fw=str.filter(u=>/Dumbbell|Kettlebell|Bench|Plate Tree|Rack|Preacher/.test(u.type)),mc=str.filter(u=>!fw.includes(u));
+  fw.forEach(u=>put(u,u=>scan(u,P,placed,blocks,{})));
+  cardio.forEach(u=>put(u,u=>scan(u,P,placed,blocks,{fromBack:true})));
+  bigFirst(mc).forEach(u=>put(u,u=>scan(u,P,placed,blocks,{})));
+ }else{
+  const order=[...str.filter(u=>/Dumbbell|Kettlebell/.test(u.type)),...cardio,...bigFirst(str.filter(u=>!/Dumbbell|Kettlebell/.test(u.type)))];
+  order.forEach(u=>put(u,u=>perim(u,P,placed,blocks)||scan(u,P,placed,blocks,{})));
+ }
+ return {placed,miss,blocks};
+}
+// footprint + rear zone + front side of a placed unit
+function fp(p){const u=p.u,b=p.box,o=p.o;let fx=b.x,fy=b.y,fw=u.Wd,fh=u.L,rz=null;
+ if(o=="N"){if(u.rear)rz={x:b.x,y:b.y+u.L,w:u.Wd,h:u.rear}}
+ else if(o=="S"){fy=b.y+u.rear;if(u.rear)rz={x:b.x,y:b.y,w:u.Wd,h:u.rear}}
+ else if(o=="W"){fw=u.L;fh=u.Wd;if(u.rear)rz={x:b.x+u.L,y:b.y,w:u.rear,h:u.Wd}}
+ else{fw=u.L;fh=u.Wd;fx=b.x+u.rear;if(u.rear)rz={x:b.x,y:b.y,w:u.rear,h:u.Wd}}
+ return {fx,fy,fw,fh,rz,o};
+}
+
+/* ---- 2D drawing ---- */
+function draw(P,L,big){
+ const pad=46,S=Math.min((big?900:560)/P.W,(big?700:440)/P.D),Wp=P.W*S,Dp=P.D*S,VW=Wp+pad*2,VH=Dp+pad*2;
+ let s=`<svg viewBox="0 0 ${VW} ${VH}" width="${VW}" height="${VH}" xmlns="http://www.w3.org/2000/svg" font-family="Barlow,Arial,sans-serif"><defs>
+ <pattern id="hz" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><rect width="2" height="6" fill="#ffd2b3"/></pattern>
+ <pattern id="hd" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><rect width="2" height="6" fill="#d0d0d0"/></pattern></defs>
+ <rect width="${VW}" height="${VH}" fill="#fff"/><g transform="translate(${pad},${pad})">`;
+ for(let x=0;x<=P.W;x++)s+=`<line x1="${x*S}" y1="0" x2="${x*S}" y2="${Dp}" stroke="#f0f0f0"/>`;
+ for(let y=0;y<=P.D;y++)s+=`<line x1="0" y1="${y*S}" x2="${Wp}" y2="${y*S}" stroke="#f0f0f0"/>`;
+ L.blocks.forEach(b=>s+=`<rect x="${b.x*S}" y="${b.y*S}" width="${b.w*S}" height="${b.h*S}" fill="url(#hd)" opacity=".8"/>`);
+ s+=`<rect x="0" y="0" width="${Wp}" height="${Dp}" fill="none" stroke="#0d0d0d" stroke-width="5"/>`;
+ s+=`<rect x="0" y="-7" width="${Wp}" height="7" fill="#9ec9e8" stroke="#4a8bb8"/><text x="${Wp/2}" y="-12" text-anchor="middle" font-size="12" font-weight="700" fill="#2a6a99" letter-spacing="3">MIRROR</text>`;
+ L.blocks.forEach(b=>{const d=b.d,w=d.w*S;let gx,gy,gw,gh,arc;
+  if(d.wall.startsWith("Mirror")){gx=b.x*S;gy=-8;gw=w;gh=12;arc=`M${gx} 0 L${gx} ${w} A${w} ${w} 0 0 0 ${gx+w} 0`}
+  else if(d.wall.startsWith("Opposite")){gx=b.x*S;gy=Dp-4;gw=w;gh=12;arc=`M${gx+w} ${Dp} L${gx+w} ${Dp-w} A${w} ${w} 0 0 0 ${gx} ${Dp}`}
+  else if(d.wall.startsWith("Left")){gx=-8;gy=b.y*S;gw=12;gh=w;arc=`M0 ${gy+w} L${w} ${gy+w} A${w} ${w} 0 0 0 0 ${gy}`}
+  else{gx=Wp-4;gy=b.y*S;gw=12;gh=w;arc=`M${Wp} ${gy} L${Wp-w} ${gy} A${w} ${w} 0 0 0 ${Wp} ${gy+w}`}
+  s+=`<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" fill="#fff"/><path d="${arc}" fill="none" stroke="#ff6a00" stroke-width="1.5" stroke-dasharray="4 2"/>`;
+  s+=`<text x="${(b.x+b.w/2)*S}" y="${(b.y+b.h/2)*S+4}" text-anchor="middle" font-size="10" font-weight="700" fill="#666">DOOR ${d.w}m</text>`;
+ });
+ L.placed.forEach(p=>{const u=p.u,{fx,fy,fw,fh,rz,o}=fp(p);
+  if(rz)s+=`<rect x="${rz.x*S}" y="${rz.y*S}" width="${rz.w*S}" height="${rz.h*S}" fill="url(#hz)" stroke="#ffb07a" stroke-dasharray="3 2"/>`;
+  s+=`<rect x="${fx*S}" y="${fy*S}" width="${fw*S}" height="${fh*S}" rx="3" fill="${u.cat=="c"?"#ff6a00":"#1a1a1a"}" stroke="#000"/>`;
+  if(u.cat=="c"){const t=Math.max(2,0.12*S);let mx=fx*S,my=fy*S,mw=fw*S,mh=t;
+   if(o=="S")my=(fy+fh)*S-t;else if(o=="W"){mw=t;mh=fh*S}else if(o=="E"){mx=(fx+fw)*S-t;mw=t;mh=fh*S}
+   s+=`<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" fill="#fff" opacity=".7"/>`}
+  const cx=(fx+fw/2)*S,cy=(fy+fh/2)*S,fs=Math.max(8,Math.min(13,Math.min(fw,fh)*S*0.45));
+  s+=`<text x="${cx}" y="${cy+fs*0.35}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${u.n}</text>`;
+ });
+ s+=`<line x1="0" y1="${Dp+12}" x2="${Wp}" y2="${Dp+12}" stroke="#ff6a00"/><line x1="0" y1="${Dp+8}" x2="0" y2="${Dp+16}" stroke="#ff6a00"/><line x1="${Wp}" y1="${Dp+8}" x2="${Wp}" y2="${Dp+16}" stroke="#ff6a00"/>`;
+ s+=`<text x="${Wp/2}" y="${Dp+26}" text-anchor="middle" font-size="12" font-weight="700">${P.W} m</text>`;
+ s+=`<line x1="-14" y1="0" x2="-14" y2="${Dp}" stroke="#ff6a00"/><text x="-20" y="${Dp/2}" text-anchor="middle" font-size="12" font-weight="700" transform="rotate(-90 -20 ${Dp/2})">${P.D} m</text>`;
+ s+=`<rect x="${Wp-S}" y="${Dp+30}" width="${S}" height="5" fill="#0d0d0d"/><text x="${Wp-S/2}" y="${Dp+44}" text-anchor="middle" font-size="9">1 m</text>`;
+ s+=`<text x="0" y="${Dp+40}" font-size="10" fill="#888">FitX Sports Equipment Services · www.fitx.qa</text>`;
+ return s+`</g></svg>`;
+}
+
+const NAMES=[["Layout A","Cardio Facing Mirror","Cardio rows face the mirror; strength machines behind."],
+ ["Layout B","Free Weights at Mirror","Dumbbells & benches at the mirror; cardio at the back facing mirror."],
+ ["Layout C","Perimeter · Open Centre","Equipment along the walls; open floor in the middle for classes."]];
+function generate(){
+ save();const P=read();
+ if(!P.eq.length){toast("Add at least one equipment");return}
+ LAYOUTS=[0,1,2].map(m=>build(P,m));SHOT=null;
+ const area=P.W*P.D;
+ $("layouts").innerHTML=LAYOUTS.map((L,i)=>{
+  const used=L.placed.reduce((a,p)=>a+p.u.L*p.u.Wd,0);
+  return `<div class="lay${i==SEL?" sel":""}"><h3>${NAMES[i][0]}<span>${NAMES[i][1]}</span></h3><div class="sub">${NAMES[i][2]}</div><div onclick="pick(${i})">${draw(P,L,false)}</div>
+  <div class="stats">Placed <b>${L.placed.length}</b> of ${L.placed.length+L.miss.length} · Room ${area.toFixed(1)} m² · Equipment ${used.toFixed(1)} m² (${(used/area*100).toFixed(0)}%)
+  ${L.miss.length?`<div class="warn">Not fitted: ${L.miss.map(u=>"#"+u.n+" "+esc(u.type)).join(", ")}</div>`:""}</div>
+  <div class="acts"><button class="bo bs" onclick="pdfOne(${i},this)">Share PDF</button><button class="bb bs" onclick="pick(${i});show3D()">3D</button><button class="bg bs" onclick="pick(${i})">Open</button></div></div>`}).join("");
+ pick(SEL,true);
+ if($("card3d").style.display!="none")show3D(true);
+}
+function listOf(L){return [...L.placed.map(p=>p.u),...L.miss].sort((a,b)=>a.n-b.n)}
+function pick(i,noScroll){
+ if(SEL!=i)SHOT=null;SEL=i;
+ document.querySelectorAll(".lay").forEach((e,j)=>e.classList.toggle("sel",j==i));
+ const P=read(),L=LAYOUTS[i];if(!L)return;
+ $("bigcard").style.display="";
+ $("bigtitle").textContent=`${NAMES[i][0]} — ${NAMES[i][1]}${P.client?" · "+P.client:""}`;
+ $("big").innerHTML=draw(P,L,true);
+ $("biglist").innerHTML=listOf(L).map(u=>`<tr><td><span class="num">${u.n}</span></td><td>${esc(u.type)}</td><td>${esc(u.brand)}</td><td>${esc(u.model)}</td><td>${u.l} × ${u.w} × ${u.h}${u.rear?` <span class="note">(+${Math.round(u.rear*100)} cm rear safety)</span>`:""}</td><td>${L.miss.includes(u)?'<span class="warn">Not fitted</span>':(u.cat=="c"?"Cardio":"Strength")}</td></tr>`).join("");
+ if($("card3d").style.display!="none"&&R3)show3D(true);
+ if(!noScroll)$("bigcard").scrollIntoView({behavior:"smooth"});
+}
+function copyList(){
+ const P=read(),L=LAYOUTS[SEL];if(!L)return;
+ let t=`FitX Sports Equipment Services – Gym Layout\n${P.client?"Site: "+P.client+"\n":""}${NAMES[SEL][0]} – ${NAMES[SEL][1]}\nRoom: ${P.W} m x ${P.D} m (mirror on ${P.W} m wall)\n\n`;
+ t+=listOf(L).map(u=>`${u.n}. ${u.type} – ${u.brand}${u.model?" "+u.model:""} – ${u.l} x ${u.w} x ${u.h} cm${L.miss.includes(u)?" (NOT FITTED)":""}`).join("\n");
+ t+="\n\nwww.fitx.qa | 50107300";
+ navigator.clipboard.writeText(t).then(()=>toast("List copied"),()=>toast("Copy not allowed here"));
+}
+function toast(m){const e=$("toast");e.textContent=m;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>e.style.display="none",2500)}
+
+/* ---- script loader ---- */
+const loaded={};
+function loadJS(src){return loaded[src]||(loaded[src]=new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{delete loaded[src];no(new Error("load "+src))};document.head.appendChild(s)}))}
+const JSPDF="lib/jspdf.umd.min.js";
+const THREE_JS="lib/three.min.js";
+const ORBIT_JS="lib/OrbitControls.js";
+
+/* ---- PDF ---- */
+function svgToPng(svg,scale=2){return new Promise((ok,no)=>{
+ const m=svg.match(/width="([\d.]+)" height="([\d.]+)"/),w=+m[1],h=+m[2];
+ const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=w*scale;c.height=h*scale;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);ok({url:c.toDataURL("image/jpeg",0.92),w,h})};
+ img.onerror=no;img.src="data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(svg)));
+})}
+function pdfHeader(doc,P,title){
+ const W=297;doc.setFillColor(13,13,13);doc.rect(0,0,W,22,"F");doc.setFillColor(255,106,0);doc.rect(0,22,W,1.5,"F");
+ doc.setFont("helvetica","bold");doc.setFontSize(22);doc.setTextColor(255,255,255);doc.text("Fit",10,13);
+ const fw=doc.getTextWidth("Fit");doc.setTextColor(255,106,0);doc.text("X",10+fw,13);
+ doc.setFontSize(7);doc.setTextColor(200,200,200);doc.text("SPORTS EQUIPMENT SERVICES",10,18.5);
+ doc.setFontSize(13);doc.setTextColor(255,255,255);doc.text(title,W-10,11,{align:"right"});
+ doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(255,140,60);
+ doc.text(`${P.client?P.client+"  ·  ":""}Room ${P.W} m × ${P.D} m  ·  ${new Date().toLocaleDateString("en-GB")}`,W-10,17.5,{align:"right"});
+}
+function pdfFooter(doc){doc.setFontSize(8);doc.setTextColor(120,120,120);doc.text("FitX Sports Equipment Services  ·  www.fitx.qa  ·  info@fitx.qa  ·  +974 50107300",148.5,205,{align:"center"})}
+function fitImg(doc,img,x,y,mw,mh){const r=Math.min(mw/img.w,mh/img.h),w=img.w*r,h=img.h*r;doc.addImage(img.url,"JPEG",x+(mw-w)/2,y,w,h);return h}
+function pdfTable(doc,L,y){
+ const cols=[[10,"#"],[20,"Equipment"],[90,"Brand"],[140,"Model"],[190,"Size L×W×H (cm)"],[245,"Zone"]];
+ const head=()=>{doc.setFillColor(13,13,13);doc.rect(10,y,277,7,"F");doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(255,255,255);cols.forEach(c=>doc.text(c[1],c[0]+2,y+5));y+=7};
+ head();doc.setFont("helvetica","normal");
+ listOf(L).forEach((u,i)=>{
+  if(y>195){pdfFooter(doc);doc.addPage();y=15;head();doc.setFont("helvetica","normal")}
+  if(i%2){doc.setFillColor(245,245,245);doc.rect(10,y,277,6.5,"F")}
+  doc.setTextColor(255,106,0);doc.setFont("helvetica","bold");doc.text(String(u.n),12,y+4.6);doc.setFont("helvetica","normal");doc.setTextColor(20,20,20);
+  const miss=L.miss.includes(u);
+  [u.type,u.brand,u.model||"-",`${u.l} × ${u.w} × ${u.h}${u.rear?`  (+${Math.round(u.rear*100)} rear)`:""}`].forEach((t,k)=>doc.text(String(t).slice(0,40),cols[k+1][0]+2,y+4.6));
+  if(miss)doc.setTextColor(200,0,0);doc.text(miss?"NOT FITTED":(u.cat=="c"?"Cardio":"Strength"),cols[5][0]+2,y+4.6);
+  y+=6.5;
+ });
+ return y;
+}
+async function addPlanPages(doc,P,i,first){
+ const L=LAYOUTS[i];if(!first)doc.addPage();
+ pdfHeader(doc,P,`${NAMES[i][0]} – ${NAMES[i][1]}`);
+ const img=await svgToPng(draw(P,L,true),2);fitImg(doc,img,10,28,277,170);pdfFooter(doc);
+ doc.addPage();pdfHeader(doc,P,`${NAMES[i][0]} – Equipment List`);
+ let y=pdfTable(doc,L,30);
+ if(SHOT&&SHOT.i==i){
+  if(y>110){pdfFooter(doc);doc.addPage();pdfHeader(doc,P,`${NAMES[i][0]} – 3D View`);y=28}else y+=6;
+  doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(13,13,13);doc.text("3D View",10,y+4);
+  fitImg(doc,SHOT,10,y+7,277,195-y-7);
+ }
+ pdfFooter(doc);
+}
+async function makePdf(idx,btn){
+ if(!LAYOUTS.length)generate();
+ if(btn){btn.disabled=true;btn._t=btn.textContent;btn.textContent="Making PDF…"}
+ try{
+  await loadJS(JSPDF);
+  if($("card3d").style.display!="none"&&R3&&R3.i==SEL)snap3D();
+  const P=read(),doc=new window.jspdf.jsPDF({orientation:"landscape",unit:"mm",format:"a4",compress:true});
+  for(let k=0;k<idx.length;k++)await addPlanPages(doc,P,idx[k],k==0);
+  const name=`FitX-Gym-Layout${P.client?"-"+P.client.replace(/[^\w]+/g,"-"):""}${idx.length==1?"-"+"ABC"[idx[0]]:"-All"}.pdf`;
+  await share(doc.output("blob"),name,idx);
+ }catch(e){console.error(e);toast("Could not make PDF: "+(e.message||e))}
+ finally{if(btn){btn.disabled=false;btn.textContent=btn._t}}
+}
+const pdfOne=(i,b)=>makePdf([i],b),pdfAll=b=>makePdf([0,1,2],b);
+let DL;
+async function share(blob,name,idx){
+ const CP=window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()&&window.Capacitor.Plugins;
+ if(CP&&CP.Filesystem&&CP.Share){
+  try{const b64=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=no;r.readAsDataURL(blob)});
+   const w=await CP.Filesystem.writeFile({path:name,data:b64,directory:"CACHE"});
+   await CP.Share.share({title:name,text:"FitX Gym Layout – www.fitx.qa",url:w.uri,dialogTitle:"Share PDF"});return}
+  catch(e){if(/cancel/i.test(String(e&&e.message)))return;console.warn(e);toast("Share failed: "+(e.message||e))}
+ }
+ const file=new File([blob],name,{type:"application/pdf"});
+ if(navigator.canShare&&navigator.canShare({files:[file]})){
+  try{await navigator.share({files:[file],title:name,text:"FitX Gym Layout – www.fitx.qa"});return}catch(e){if(e.name=="AbortError")return}
+ }
+ try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);toast("PDF downloaded");return}catch(e){console.warn(e)}
+ // fallback: show picture to long-press save/share
+ const img=await svgToPng(draw(read(),LAYOUTS[idx[0]],true),2);
+ $("modalImg").style.display="";$("modal").querySelector("p").textContent="Long-press the picture to save or share it · tap to close";$("modalImg").src=img.url;$("modal").style.display="flex";toast("PDF download not available here – save the picture instead");
+}
+
+/* ---- 3D ---- */
+let R3=null;
+async function show3D(quiet){
+ if(!LAYOUTS.length)return;
+ $("card3d").style.display="";$("title3d").textContent=`3D Plan — ${NAMES[SEL][0]} · ${NAMES[SEL][1]}`;
+ if(!quiet)$("card3d").scrollIntoView({behavior:"smooth"});
+ try{await loadJS(THREE_JS);await loadJS(ORBIT_JS)}catch(e){$("v3d").innerHTML='<div class="ld">3D library could not load</div>';return}
+ build3D(read(),LAYOUTS[SEL]);
+}
+function labelSprite(t,bg){
+ const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d");
+ x.fillStyle=bg;x.beginPath();x.arc(64,64,56,0,7);x.fill();x.lineWidth=8;x.strokeStyle="#fff";x.stroke();
+ x.fillStyle="#fff";x.font="bold 64px Arial";x.textAlign="center";x.textBaseline="middle";x.fillText(t,64,68);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));s.scale.set(.45,.45,1);return s;
+}
+function textPlane(t,w,col){
+ const c=document.createElement("canvas");c.width=512;c.height=96;const x=c.getContext("2d");
+ x.fillStyle=col;x.font="bold 60px Arial";x.textAlign="center";x.textBaseline="middle";x.fillText(t,256,50);
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w*96/512),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true}));return m;
+}
+function build3D(P,L){
+ const box=$("v3d");
+ if(!R3){
+  box.innerHTML="";
+  const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setPixelRatio(Math.min(2,devicePixelRatio));r.shadowMap.enabled=true;
+  box.appendChild(r.domElement);
+  const cam=new THREE.PerspectiveCamera(45,1,0.1,200),ctl=new THREE.OrbitControls(cam,r.domElement);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI/2.05;
+  R3={r,cam,ctl,scene:null};
+  const rs=()=>{const w=box.clientWidth,h=box.clientHeight;r.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()};
+  new ResizeObserver(rs).observe(box);rs();
+  (function loop(){requestAnimationFrame(loop);R3.ctl.update();if(R3.scene)R3.r.render(R3.scene,R3.cam)})();
+ }
+ R3.i=SEL;R3.P=P;
+ const sc=new THREE.Scene();sc.background=new THREE.Color(0x1a1a1a);
+ const W=P.W,D=P.D,H=P.H,X=x=>x-W/2,Z=y=>y-D/2;
+ sc.add(new THREE.HemisphereLight(0xffffff,0x444444,0.75));
+ const dl=new THREE.DirectionalLight(0xffffff,0.75);dl.position.set(W*0.3,H*4,D*0.6);dl.castShadow=true;
+ const sz=Math.max(W,D);Object.assign(dl.shadow.camera,{left:-sz,right:sz,top:sz,bottom:-sz});dl.shadow.mapSize.set(2048,2048);sc.add(dl);
+ // floor
+ const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshStandardMaterial({color:0x3a3a3a,roughness:.9}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;sc.add(floor);
+ const grid=new THREE.GridHelper(Math.ceil(sz),Math.ceil(sz),0x555555,0x484848);grid.position.y=0.002;
+ grid.scale.set(1,1,1);sc.add(grid);
+ // walls with door openings
+ const wallM=new THREE.MeshStandardMaterial({color:0xf2f2f2,transparent:true,opacity:.35,side:THREE.DoubleSide});
+ const blocks=L.blocks,DH=2.1,T=0.12;
+ const walls=[{k:"Mirror",len:W,pos:(a,l)=>[X(a+l/2),Z(0)],rot:0},{k:"Opposite",len:W,pos:(a,l)=>[X(a+l/2),Z(D)],rot:0},
+  {k:"Left",len:D,pos:(a,l)=>[X(0),Z(a+l/2)],rot:Math.PI/2},{k:"Right",len:D,pos:(a,l)=>[X(W),Z(a+l/2)],rot:Math.PI/2}];
+ walls.forEach(w=>{
+  const ds=blocks.filter(b=>b.d.wall.startsWith(w.k)).map(b=>[b.d.off,b.d.off+b.d.w]).sort((a,b)=>a[0]-b[0]);
+  let a=0;const seg=(s,e,y0,y1,m)=>{if(e-s<0.01)return;const [x,z]=w.pos(s,e-s);const g=new THREE.Mesh(new THREE.BoxGeometry(e-s,y1-y0,T),m);g.position.set(x,(y0+y1)/2,z);g.rotation.y=w.rot;sc.add(g)};
+  ds.forEach(([s,e])=>{seg(a,s,0,H,wallM);seg(s,e,DH,H,wallM);
+   const [x,z]=w.pos(s,e-s);const fr=new THREE.Mesh(new THREE.BoxGeometry(e-s,DH,T*1.3),new THREE.MeshStandardMaterial({color:0xff6a00,transparent:true,opacity:.25}));fr.position.set(x,DH/2,z);fr.rotation.y=w.rot;sc.add(fr);
+   const tp=textPlane("DOOR",1,"#ff8a33");tp.position.set(x,DH+0.3,z);tp.rotation.y=w.rot;sc.add(tp);a=e});
+  seg(a,w.len,0,H,wallM);
+  if(w.k=="Mirror"){ // mirror panels between doors
+   const mm=new THREE.MeshStandardMaterial({color:0xb8dcf5,metalness:.9,roughness:.08,emissive:0x16354d});
+   let b=0.2;const ms=(s,e)=>{if(e-s<0.3)return;const g=new THREE.Mesh(new THREE.BoxGeometry(e-s,2,0.03),mm);g.position.set(X((s+e)/2),1.25,Z(0)+T/2+0.02);sc.add(g)};
+   ds.forEach(([s,e])=>{ms(b,s-0.1);b=e+0.1});ms(b,W-0.2);
+   const tp=textPlane("MIRROR",2.4,"#9ec9e8");tp.position.set(0,2.55,Z(0)+0.1);sc.add(tp);
+  }
+ });
+ // equipment
+ const orange=new THREE.MeshStandardMaterial({color:0xff6a00,roughness:.5}),dark=new THREE.MeshStandardMaterial({color:0x222222,roughness:.6,metalness:.3}),
+  grey=new THREE.MeshStandardMaterial({color:0x777777,metalness:.6,roughness:.4}),edge=new THREE.LineBasicMaterial({color:0xff6a00});
+ const addBox=(w,h,d,m,x,y,z)=>{const g=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);g.position.set(x,y,z);g.castShadow=true;g.receiveShadow=true;sc.add(g);return g};
+ L.placed.forEach(p=>{
+  const u=p.u,{fx,fy,fw,fh,rz,o}=fp(p),cx=X(fx+fw/2),cz=Z(fy+fh/2),h=Math.max(0.2,u.Ht);
+  if(rz){const z=new THREE.Mesh(new THREE.PlaneGeometry(rz.w,rz.h),new THREE.MeshBasicMaterial({color:0xff6a00,transparent:true,opacity:.18}));z.rotation.x=-Math.PI/2;z.position.set(X(rz.x+rz.w/2),0.01,Z(rz.y+rz.h/2));sc.add(z)}
+  if(u.cat=="c"){
+   const bh=Math.min(0.3,h*0.4);addBox(fw,bh,fh,orange,cx,bh/2,cz);
+   const t=0.14;let px=cx,pz=cz,pw=fw,pd=t;
+   if(o=="N")pz=Z(fy)+t/2;else if(o=="S")pz=Z(fy+fh)-t/2;else if(o=="W"){px=X(fx)+t/2;pw=t;pd=fh}else{px=X(fx+fw)-t/2;pw=t;pd=fh}
+   addBox(pw*0.9,h-bh,pd*0.9,grey,px,bh+(h-bh)/2,pz);
+   const cw=(o=="N"||o=="S")?fw:0.35,cd=(o=="N"||o=="S")?0.35:fh;let cX=px,cZ=pz;
+   if(o=="N")cZ=pz+0.12;else if(o=="S")cZ=pz-0.12;else if(o=="W")cX=px+0.12;else cX=px-0.12;
+   addBox(cw,0.08,cd,dark,cX,h,cZ);
+  }else{
+   const g=addBox(fw,h,fh,dark,cx,h/2,cz);
+   const e=new THREE.LineSegments(new THREE.EdgesGeometry(g.geometry),edge);e.position.copy(g.position);sc.add(e);
+  }
+  const s=labelSprite(String(u.n),u.cat=="c"?"#ff6a00":"#0d0d0d");s.position.set(cx,h+0.35,cz);sc.add(s);
+ });
+ R3.scene=sc;cam(R3.view||"iso");
+}
+function cam(v){
+ if(!R3)return;R3.view=v;const P=R3.P,s=Math.max(P.W,P.D),c=R3.cam;
+ if(v=="top"){c.position.set(0,s*1.35,0.01)}
+ else if(v=="mirror"){c.position.set(0,1.7,P.D/2+s*0.45)}
+ else c.position.set(s*0.55,s*0.75,P.D/2+s*0.7);
+ R3.ctl.target.set(0,v=="mirror"?1.2:0,0);c.lookAt(R3.ctl.target);R3.ctl.update();
+}
+function snap3D(){
+ if(!R3||!R3.scene)return;R3.r.render(R3.scene,R3.cam);
+ const cv=R3.r.domElement;SHOT={i:R3.i,url:cv.toDataURL("image/jpeg",0.9),w:cv.width,h:cv.height};
+}
+
+/* ---- install app ---- */
+let DEFER=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();DEFER=e;$("installBtn").style.display=""});
+window.addEventListener("appinstalled",()=>{$("installBtn").style.display="none";toast("FitX Layout installed")});
+const IS_IOS=/iphone|ipad|ipod/i.test(navigator.userAgent),STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+const IN_APP=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+if(IS_IOS&&!STANDALONE&&!IN_APP)$("installBtn").style.display="";
+async function installApp(){
+ if(DEFER){DEFER.prompt();await DEFER.userChoice;DEFER=null;$("installBtn").style.display="none"}
+ else if(IS_IOS){$("modalImg").removeAttribute("src");$("modalImg").style.display="none";$("modal").querySelector("p").innerHTML="<b style='color:#ff6a00;font-size:18px'>Install on iPhone</b><br><br>1. Tap the <b>Share</b> button in Safari<br>2. Tap <b>Add to Home Screen</b><br>3. Tap <b>Add</b><br><br>tap to close";$("modal").style.display="flex"}
+}
+if(!IN_APP&&"serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(console.warn);
+
+/* ---- init ---- */
+document.addEventListener("input",save);
+(function init(){
+ CT=ls("fitxCustomTypes")||{};CB=ls("fitxCustomBrands")||[];
+ Object.keys(CT).forEach(k=>{if(CT[k].length<5)CT[k][4]=120});rebuildTypes();
+ const d=ls("fitxLayout");
+ if(d&&d.eq){$("client").value=d.client||"";$("rw").value=d.W;$("rd").value=d.D;$("rh").value=d.H||3;$("gap").value=d.gap;d.doors.forEach(addDoor);d.eq.forEach(e=>addEq(e))}
+ else{
+  addDoor({wall:"Opposite wall (bottom)",off:1,w:1.2});
+  [["Treadmill","Life Fitness","Integrity",4],["Elliptical / Cross Trainer","Technogym","",2],["Upright Bike","Matrix","",2],["Dumbbell Rack (2-tier)","Body Masters","",1],
+   ["Adjustable Bench","Body Masters","",2],["Smith Machine","Matrix","",1],["Cable Crossover","Life Fitness","",1]].forEach(([t,b,m,q])=>{const T=TYPES[t];addEq({type:t,brand:b,model:m,l:T[0],w:T[1],h:T[4],q})});
+ }
+ renderCustom();generate();
+})();
+</script>
+<script src="cloud.js"></script>
+</body>
+</html>
