@@ -293,6 +293,28 @@ window.addEventListener("online", () => setSync("wait"));
 window.addEventListener("offline", () => setSync("off"));
 window.addEventListener("beforeunload", e => { if (DIRTY && ME) { e.preventDefault(); e.returnValue = ""; } });
 
+/* ---------- import from first (offline) planner page ---------- */
+function openImport() { $("impText").value = ""; $("impErr").textContent = ""; ov("importOv", true); setTimeout(() => $("impText").focus(), 50); }
+function doImport() {
+  let d;
+  try { d = JSON.parse($("impText").value.trim()); } catch (e) { $("impErr").textContent = "That is not export text. Copy it again from the first page."; return; }
+  const plan = d.plan || (d.eq ? d : null);
+  if (!plan || !Array.isArray(plan.eq)) { $("impErr").textContent = "No plan found in this text."; return; }
+  if (DIRTY && !confirm("You have unsaved changes. Replace them with the imported plan?")) return;
+  // custom equipment types & brands – merge, keep existing
+  let added = 0;
+  if (d.types && typeof d.types == "object") for (const k in d.types) if (!CT[k] && !BASE_TYPES[k]) { const t = d.types[k]; if (t.length < 5) t[4] = 120; CT[k] = t; added++; }
+  if (Array.isArray(d.brands)) d.brands.forEach(b => { if (b && !brands().includes(b)) { CB.push(b); added++; } });
+  if (added) { ls("fitxCustomTypes", CT); ls("fitxCustomBrands", CB); rebuildTypes(); renderCustom(); saveCatalog(); }
+  // older pages had no height – fill from the type
+  plan.eq.forEach(e => { if (e.h == null) e.h = (TYPES[e.type] || TYPES.Other)[4]; });
+  loadPlan({ H: 3, gap: 0.6, ...plan });
+  setCurrent(null); DIRTY = true; $("dirty").style.display = "";
+  ov("importOv", false); window.scrollTo({ top: 0, behavior: "smooth" });
+  toast(`Imported ${plan.eq.length} equipment rows${added ? ` + ${added} custom types/brands` : ""} – check it, then tap 💾 Save Plan`);
+  if (!plan.client) setTimeout(() => $("client").focus(), 400);
+}
+
 /* ---------- start ---------- */
 (function () {
   const d = ls("fitxLayout");

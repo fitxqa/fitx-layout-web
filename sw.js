@@ -1,7 +1,7 @@
 // FitX Gym Layout Planner – offline cache
-const CACHE = "fitx-layout-v5";
+const CACHE = "fitx-layout-v6";
 const FILES = ["./", "./index.html", "./manifest.json", "./lib/three.min.js", "./lib/OrbitControls.js",
-  "./lib/jspdf.umd.min.js", "./cloud.js?v=5", "./config.js?v=5",
+  "./lib/jspdf.umd.min.js", "./cloud.js?v=6", "./config.js?v=6",
   "./lib/firebase-app-compat.js", "./lib/firebase-auth-compat.js", "./lib/firebase-firestore-compat.js", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
