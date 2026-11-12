@@ -33,11 +33,14 @@ function saveSetup() {
     location.reload();
   } catch (e) { $("cfgErr").textContent = "Could not read config: " + e.message; }
 }
-function showLogin(msg) { $("loginErr").textContent = msg || ""; ov("loginOv", true); setTimeout(() => $("liEmail").focus(), 50); }
+function lock(on) { document.body.classList.toggle("locked", on); }
+function showLogin(msg) { lock(true); $("loginErr").textContent = msg || ""; ov("loginOv", true); setTimeout(() => $("liEmail").focus(), 50); }
 
 /* ---------- start ---------- */
 async function cloudInit() {
   const cfg = fbConfig();
+  if (window.FITX_FIREBASE) $("setupLink").style.display = "none"; // config is built in – staff cannot change it
+  showLogin();
   if (!cfg) { showSetup(); return; }
   try {
     await loadJS("lib/firebase-app-compat.js");
@@ -49,7 +52,7 @@ async function cloudInit() {
   } catch (e) { console.error(e); showSetup(); $("cfgErr").textContent = "Firebase could not start: " + e.message; return; }
   AUTH.onAuthStateChanged(u => {
     ME = u;
-    if (u) { ov("loginOv", false); onLogin(u); }
+    if (u) { ov("loginOv", false); lock(false); onLogin(u); }
     else { stopSync(); $("userBox").style.display = "none"; showLogin(); }
   });
 }
@@ -77,7 +80,13 @@ function niceErr(e) {
   if (/invalid-email/.test(c)) return "Email address is not valid";
   return (e && e.message) || String(e);
 }
-function logout() { if (confirm("Log out of FitX Layout?")) AUTH.signOut(); }
+function logout() {
+  if (DIRTY && !confirm("You have unsaved changes. Log out anyway?")) return;
+  if (!DIRTY && !confirm("Log out of FitX Layout?")) return;
+  // clear this device's working copy so the next person starts clean
+  try { localStorage.removeItem("fitxLayout"); } catch (e) {}
+  DIRTY = false; CUR_ID = null; Promise.resolve(AUTH.signOut()).then(() => location.reload());
+}
 
 async function onLogin(u) {
   MYNAME = u.displayName || u.email.split("@")[0];

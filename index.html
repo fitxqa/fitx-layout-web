@@ -68,6 +68,8 @@ td input,td select{width:100%;padding:5px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:15;padding:16px;flex-direction:column;gap:10px}
 .modal img{max-width:100%;max-height:80vh;background:#fff;border-radius:6px}
 .modal p{color:#fff;margin:0;text-align:center}
+body.locked main,body.locked #userBox,body.locked #installBtn,body.locked .title{display:none!important}
+#loginOv{background:#0d0d0d}
 .ovl{position:fixed;inset:0;background:rgba(13,13,13,.94);display:none;align-items:center;justify-content:center;z-index:30;padding:16px}
 .ovl .box{background:#fff;border-radius:12px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5)}
 .ovl .bh{background:#0d0d0d;color:#fff;padding:18px;border-bottom:4px solid var(--org)}
@@ -89,13 +91,12 @@ textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px sol
 @media(max-width:600px){.title{display:none}#userBox .uname{display:none}.plan{flex-direction:column;align-items:stretch}.pact{justify-content:flex-end}.layouts{grid-template-columns:1fr}#v3d{height:400px}}
 </style>
 </head>
-<body>
+<body class="locked">
 <header>
   <div><div class="logo">Fit<b>X</b></div><div class="tag">Sports Equipment Services</div></div>
   <div id="userBox" style="display:none"><span id="syncDot"></span><span class="uname">👤 <span id="userName"></span></span>
     <button class="bg" onclick="$('plansCard').scrollIntoView({behavior:'smooth'})">Plans</button>
-    <button class="bg" title="Firebase settings" onclick="showSetup()">⚙</button>
-    <button class="bg" onclick="logout()">Log out</button></div>
+        <button class="bg" onclick="logout()">Log out</button></div>
   <button id="installBtn" class="bo" style="display:none" onclick="installApp()">⬇ Install</button>
   <div class="title" style="margin-left:12px">Gym Layout Planner<br><span style="color:var(--org);font-size:12px">3 layouts · PDF · 3D view</span></div>
 </header>
@@ -219,7 +220,7 @@ textarea.notes{font-family:inherit;font-size:14px;padding:7px 8px;border:1px sol
     <label>Password<input id="liPass" type="password" autocomplete="current-password"></label>
     <div class="err" id="loginErr"></div>
     <button class="bo" id="liBtn" type="submit">Log in</button>
-    <div style="display:flex;justify-content:space-between"><button type="button" class="link" onclick="forgotPass()">Forgot password?</button><button type="button" class="link" onclick="showSetup()">⚙ Firebase settings</button></div>
+    <div style="display:flex;justify-content:space-between"><button type="button" class="link" onclick="forgotPass()">Forgot password?</button><button type="button" class="link" id="setupLink" onclick="showSetup()">⚙ Firebase settings</button></div>
   </div></form></div>
 <div class="ovl" id="setupOv"><div class="box">
   <div class="bh"><div class="logo">Fit<b>X</b></div><div style="margin-top:8px;font-weight:600">Connect your Firebase database</div></div>
